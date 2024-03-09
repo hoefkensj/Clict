@@ -1,10 +1,9 @@
-[tool.poetry]
-name = "clict"
-version = "0.2.0"
-description = "Python Dict with classlike access to its contents (dot.notation,creates"
-authors = ["missing keys on the fly,...)"]
-license = "MIT"
-readme = "README.md"
+[project]
+name = "Clict"
+description = "Python Dict with classlike access to its contents (dot.notation,creates missing keys on the fly,...)"
+#authors = ["hoefkens.j"]
+#license = ["LICENCE"]
+version ='0.3.0'
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -15,5 +14,6 @@ python = "^3.8"
 #build-backend = "poetry.core.masonry.api"
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
+
