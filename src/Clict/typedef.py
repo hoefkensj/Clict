@@ -1,11 +1,12 @@
 #!/usr/bin/env python
+import configparser
 from random import randint
 class Clict(dict):
 	def __new__(c, *a, **k):
 		return super().__new__(c, *a, **k)
 
 	def __init__(s, *a, **k):
-		super().__init__(*a, **k)
+			super().__init__(*a, **k)
 
 	def __setattr__(s, k, v):
 		# print('setattr_called with:' ,f'{k=}{v=}')
