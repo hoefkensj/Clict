@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from Clict import typedef
-from Clict.typedef import Clict
-
+from Clict import Typedef
+from Clict.Typedef import Clict
 

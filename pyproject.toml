@@ -2,6 +2,16 @@
 name = "Clict"
 description = "Python Dict with classlike access to its contents (dot.notation,creates missing keys on the fly,...)"
 version ='0.3.0'
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/pypa/sampleproject"
+Issues = "https://github.com/pypa/sampleproject/issues"
 
 [tool.poetry.dependencies]
 python = "^3.8"

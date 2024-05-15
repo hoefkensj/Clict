@@ -3,10 +3,13 @@ import configparser
 from random import randint
 class Clict(dict):
 	def __new__(c, *a, **k):
+
 		return super().__new__(c, *a, **k)
 
 	def __init__(s, *a, **k):
-			super().__init__(*a, **k)
+		# if a:
+			# s.__convert__(*a)
+		super().__init__(*a, **k)
 
 	def __setattr__(s, k, v):
 		# print('setattr_called with:' ,f'{k=}{v=}')
@@ -50,6 +53,22 @@ class Clict(dict):
 
 	def __iter__(s):
 		return (i for i in s.__clean__())
+
+	# def __convert__(s,*a):
+	# 	def unpack(currentitem):
+	# 		if isinstance(currentitem,dict):
+	# 			for key in item:
+	# 				if isinstance(item[key],dict):
+	# 					clict[key]=s.__convert__(item[key])
+	# 				else:
+	# 					clict[key]=item[key]
+	# 		elif isinstance(currentitem,list):
+	# 			for item in currentitem:
+	# 				if type(item).__name__ in ['dict','list','set','tuple']:
+	# 	clict=Clict()
+	# 	for item in a:
+	# 		s|=unpack(item)
+
 
 	def __setparent__(s,*func):
 		s.__parent=func
