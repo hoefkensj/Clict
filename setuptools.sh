@@ -3,7 +3,9 @@ C1A=1
 C1B=30
 C2A=41
 C2B=70
-alias ptab="printf '\x1b[%iG%s:%s\x1b[32m%s\x1b[m\n'"
+function ptab(){
+	printf '\x1b[%iG%s:%s\x1b[32m%s\x1b[m\n' $@
+}
 VERSION=$(cat pyproject.toml|rg -i version|tr -d 'version = ')
 PROJ=$(basename $PWD)
 ptab $C1A "Project" $C1B $PROJ
@@ -40,3 +42,5 @@ printf "Uploading to Pypi..\x1b[30G"
 #twine upload  dist/* --verbose  --skip-existing  -u '__token__' -p "$(cat .PYPI_APIKEY)" &>/dev/null
 printf 't\x1b[1;32mDONE\x1b[m\n________________________________________________________________________________\n________________________________________________________________________________\n\n'
 
+
+}
