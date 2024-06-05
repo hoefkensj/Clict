@@ -15,7 +15,7 @@ printf '\t\t\x1b[32mDONE\x1b[m\t\tRESULT: %s\n' $TESTSTATUS
 printf 'building %s v%s ...' $PROJ $VERSION
 python -m build &>/dev/null
 printf '\t\t\x1b[32mDONE\x1b[m\n'
-prinf 'GIT:\t\t|\t\tStaging changes: '
+printf 'GIT:\t\t|\t\tStaging changes: '
 git add . &>/dev/null
 printf '\t\t\x1b[32mDONE\x1b[m\t\t|\t\t'
 printf 'Committing Changes: '
