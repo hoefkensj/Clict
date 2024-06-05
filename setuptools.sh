@@ -3,44 +3,52 @@ C1A=1
 C1B=30
 C2A=41
 C2B=70
+DONE='\xb[1;32mDONE\x1b[m'
 function ptab(){
-	printf '\x1b[%iG%s:%s\x1b[32m%s\x1b[m\n' $@
+	printf '\x1b[%sG%s' $1 $2
 }
 VERSION=$(cat pyproject.toml|rg -i version|tr -d 'version = ')
 PROJ=$(basename $PWD)
-ptab $C1A "Project" $C1B $PROJ
-ptab $C2A "Version" $C2B $VERSION
-
-
-printf "Upgrading tools..."
+ptab $C1A "Project:"
+ptab $C1B $PROJ
+ptab $C2A "Version:"
+ptab $C2B $VERSION
+printf '\n'
+ptab $C1A "Upgrading tools:"
 pip install --upgrade setuptools &>/dev/null
 pip install --upgrade build &>/dev/null
 pip install --upgrade twine &>/dev/null
-printf '\t\t\x1b[32mDONE\x1b[m\n'
-printf 'Running Tests... '
+ptab $C1B $DONE
+printf '\n'
+ptab $C1A'Running Tests:'
 python -m unittest &> .STATUS_TESTS
 [[ -n $(cat .STATUS_TESTS|rg -i '^OK$') ]] && TESTSTATUS='OK' || TESTSTATUS='FAIL'
 rm .STATUS_TESTS
-printf '\t\t\x1b[32mDONE\x1b[m\t\tRESULT: \x1b[32m%s\x1b[m\n' $TESTSTATUS
-printf 'building %s v%s ...' $PROJ $VERSION
+ptab $C1B $DONE
+ptab $C2A 'Result'
+ptab $C2B "\x1b[32m$TESTSTATUS\x1b[32m"
+printf '\n'
+ptab  $C1A 'Building Project:'
 python -m build &>/dev/null
-printf '\t\t\x1b[32mDONE\x1b[m\n'
-printf 'GIT:'
-printf '\x1b[41GStaging:'
+ptab $C1B $DONE
+ptab $C1A 'GIT'
+ptab $C2A 'Staging:'
 git add . &>/dev/null
-printf '\x1b[70G\x1b[32mDONE\x1b[m\n'
-printf '\tCommitting:'
+ptab $C2B $DONE
+printf '\n'
+ptab $C2A 'Committing:'
 echo "CURRENT VERSION: $VERSION :: TESTS: $TESTSTATUS :: CHANGED: " > .GITCOMMIT_MESSAGE
 git status &>> .GITCOMMIT_MESSAGE &>/dev/null
 git commit -m "$(cat .GITCOMMIT_MESSAGE)" &>/dev/null
-printf '\x1b[30G\x1b[32mDONE\x1b[m\n'
-printf '\tPushing'
+ptab $C2B $DONE
+ptab $C2A 'Pushing:'
 git push &>/dev/null
-printf '\x1b[30G\x1b[32mDONE\x1b[m\n'
-printf '\n----------------------------------------------------------------------\n'
-printf "Uploading to Pypi..\x1b[30G"
+ptab $C2B $DONE
+printf '\n'
+ptab $C1A "Pypi:"
+ptab $C2A "Uploading:"
+
 #twine upload  dist/* --verbose  --skip-existing  -u '__token__' -p "$(cat .PYPI_APIKEY)" &>/dev/null
-printf 't\x1b[1;32mDONE\x1b[m\n________________________________________________________________________________\n________________________________________________________________________________\n\n'
+ptab $C2B $DONE
 
-
-}
+printf '\n________________________________________________________________________________\n________________________________________________________________________________\n\n'
