@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-C1A="\x1b[1G"
-C1B='\x1b[30G'
-C2A='\x1b[41G'
-C2B='\x1b[70G'
-alias ptab="printf '%s%s:%s\x1b[32m%s\x1b[m\n'"
+C1A=1
+C1B=30
+C2A=41
+C2B=70
+alias ptab="printf '\x1b[%iG%s:%s\x1b[32m%s\x1b[m\n'"
 VERSION=$(cat pyproject.toml|rg -i version|tr -d 'version = ')
 PROJ=$(basename $PWD)
 ptab $C1A "Project" $C1B $PROJ
