@@ -24,10 +24,10 @@ git status &>> .GITCOMMIT_MESSAGE &>/dev/null
 git commit -m "$(cat .GITCOMMIT_MESSAGE)" &>/dev/null
 printf '\x1b[32mDONE\x1b[m\t\t|\t\t'
 git commit -m "$MESSAGE" &>/dev/null
-echo "Pushing to Remote: "
+printf "Pushing to Remote: "
 git push &>/dev/null
 printf '\t\x1b[32mDONE\x1b[m\t\t|\n'
 printf "Uploading to Pypi.."
-twine upload  dist/* --verbose  --skip-existing  -u '__token__' -p "$(cat .PYPI_APIKEY)" &>/dev/null
+#twine upload  dist/* --verbose  --skip-existing  -u '__token__' -p "$(cat .PYPI_APIKEY)" &>/dev/null
 printf '\n\n\x1b[1;32mDONE\x1b[m\n\n'
 
