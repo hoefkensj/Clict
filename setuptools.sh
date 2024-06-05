@@ -1,24 +1,33 @@
 #!/usr/bin/env bash
-echo "Upgrading tools..."
+VERSION=$(cat pyproject.toml|rg -i version|tr -d 'version = ')
+PROJ=$(basename .)
+printf "PROJECT: %s\t\tVERSION: %s\n======================================\n" $PROJ $VERSION
+printf "Upgrading tools..."
 pip install --upgrade setuptools &>/dev/null
 pip install --upgrade build &>/dev/null
 pip install --upgrade twine &>/dev/null
-echo 'building ...'
+printf '\t\t\x1b[32mDONE\x1b[m\n'
+printf 'Running Tests... '
+python -m unittest &> .STATUS_TESTS
+[[ -n $(cat .STATUS_TESTS|rg -i '^OK$') ]] && TESTSTATUS='OK' || TESTSTATUS='FAIL'
+rm .STATUS_TESTS
+printf '\t\t\x1b[32mDONE\x1b[m\t\tRESULT: %s\n' $TESTSTATUS
+printf 'building %s v%s ...' $PROJ $VERSION
 python -m build &>/dev/null
-echo 'Staging changes'
+printf '\t\t\x1b[32mDONE\x1b[m\n'
+prinf 'GIT:\t\t|\t\tStaging changes: '
 git add . &>/dev/null
-cat pyproject.toml|rg -i version|tr -d 'version = ' &> .GITCOMMIT_MESSAGE
-echo -e "\n--------------\n\n" &>> .GITCOMMIT_MESSAGE
-python -m unittest &>> .GITCOMMIT_MESSAGE
-echo -e "\n--------------\n\n" &>> .GITCOMMIT_MESSAGE
+printf '\t\t\x1b[32mDONE\x1b[m\t\t|\t\t'
+printf 'Committing Changes: '
+echo "CURRENT VERSION: $VERSION :: TESTS: $TESTSTATUS :: CHANGED: " > .GITCOMMIT_MESSAGE
 git status &>> .GITCOMMIT_MESSAGE
-MESSAGE="$(cat .GITCOMMIT_MESSAGE)"
-echo "Committing Changes..."
-git commit --message=$MESSAGE
-echo "Pushing changes to remote..."
+git commit -m "$(cat .GITCOMMIT_MESSAGE)"
+printf '\x1b[32mDONE\x1b[m\t\t|\t\t'
+git commit -m "$MESSAGE"
+echo "Pushing to Remote: "
 git push origin
-
-echo "Uploading to Pypi.."
-twine upload  dist/* --verbose <<< $(cat .PYPI_APIKEY)
+printf '\t\x1b[32mDONE\x1b[m\t\t|\n'
+printf "Uploading to Pypi.."
+twine upload  dist/* --verbose  --skip-existing  -u '__token__' -p "$(cat .PYPI_APIKEY)"
 printf '\n\n\x1b[1;32mDONE\x1b[m\n\n'
 
