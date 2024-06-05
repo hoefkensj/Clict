@@ -29,5 +29,5 @@ git push &>/dev/null
 printf '\t\x1b[32mDONE\x1b[m\t\t|\n'
 printf "Uploading to Pypi.."
 #twine upload  dist/* --verbose  --skip-existing  -u '__token__' -p "$(cat .PYPI_APIKEY)" &>/dev/null
-printf '\n\n\x1b[1;32mDONE\x1b[m\n\n'
+printf '\t\x1b[1;32mDONE\x1b[m\n.................................\n'
 
