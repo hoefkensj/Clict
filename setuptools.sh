@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-C1A=1
-C1B=30
-C2A=41
-C2B=70
+C1A='1'
+C1B='20'
+C2A='40'
+C2B='60'
 
 function ptab(){
 	printf '\x1b[%sG\x1b[%sm%s\x1b[m' $1 $2 $3
@@ -13,21 +13,21 @@ ptab $C1A 29 "Project:"
 ptab $C1B 32 $PROJ
 ptab $C2A 29 "Version:"
 ptab $C2B 32 $VERSION
-printf '\n'
+echo
 ptab $C1A 29 "Upgrading tools:"
 pip install --upgrade setuptools &>/dev/null
 pip install --upgrade build &>/dev/null
 pip install --upgrade twine &>/dev/null
 ptab $C1B 32 "DONE"
-printf '\n'
+echo
 ptab $C1A 28 'Running Tests:'
 python -m unittest &> .STATUS_TESTS
 [[ -n $(cat .STATUS_TESTS|rg -i '^OK$') ]] && TESTSTATUS='OK' || TESTSTATUS='FAIL'
 rm .STATUS_TESTS
 ptab $C1B $DONE
 ptab $C2A 'Result'
-ptab $C2B "\x1b[32m$TESTSTATUS\x1b[32m"
-printf '\n'
+ptab $C2B 32 $TESTSTATUS
+echo
 ptab  $C1A 'Building Project:'
 python -m build &>/dev/null
 ptab $C1B $DONE
