@@ -25,7 +25,7 @@ git commit -m "$(cat .GITCOMMIT_MESSAGE)"
 printf '\x1b[32mDONE\x1b[m\t\t|\t\t'
 git commit -m "$MESSAGE"
 echo "Pushing to Remote: "
-git push origin
+git push
 printf '\t\x1b[32mDONE\x1b[m\t\t|\n'
 printf "Uploading to Pypi.."
 twine upload  dist/* --verbose  --skip-existing  -u '__token__' -p "$(cat .PYPI_APIKEY)"
