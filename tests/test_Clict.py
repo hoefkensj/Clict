@@ -1,53 +1,68 @@
 #!/usr/bin/env python
 import unittest
-import src
-import QDPrintTree
-from QDPrintTree import pTree
+from Clict import Clict
 
 
+class TestClict(unittest.TestCase):
 
-class MyTestCase(unittest.TestCase):
+	def test_init_with_dict(s):
+		c = Clict(a=1, b=2)
+		s.assertEqual(c['a'], 1)
+		s.assertEqual(c['b'], 2)
 
-	def test_clict_instances(s):
-		from Clict import Clict
-		tmpa=Clict()
-		s.assertIsInstance(tmpa,Clict)
-		tmpb=Clict()
-		tmpb.b='string'
-		print(type(tmpb))
-		print(type(tmpb.b))
-		s.assertIsInstance(tmpb,Clict)
-		s.assertIsInstance(tmpb.b,str)
-		print('-----')
-		tmpb=Clict()
-		print(type(tmpb))
-		s.assertIsInstance(tmpb,Clict)
-		print('-----')
+	def test_set_get_item(s):
+		c = Clict()
+		c['a'] = 1
+		s.assertEqual(c['a'], 1)
 
-		tmpb.b='string'
-		print(type(tmpb.b))
+	def test_set_get_attr(s):
+		c = Clict()
+		c.a = 1
+		s.assertEqual(c.a, 1)
 
-		s.assertIsInstance(tmpb.b,str)
-		print('-----')
-		tmpb.c.d={'f':'g'}
-		print(type(tmpb.c))
-		print('-----')
+	def test_missing_key(s):
+		c = Clict()
+		s.assertIsInstance(c['missing'], Clict)
 
-		s.assertIsInstance(tmpb.c,Clict)
-		print(type(tmpb.c.d))
-		s.assertIsInstance(tmpb.c.d,dict)
-		print(type(tmpb.c.d['f']))
-		s.assertIsInstance(tmpb.c.d['f'],str)
-		print(tmpb.c.d['f'])
-		print(tmpb)
+	def test_contains_key(s):
+		c = Clict(a=1)
+		s.assertIn('a', c)
+		s.assertNotIn('b', c)
 
-		tmpc=Clict()
-		print(type(tmpc.d))
-		print(type(tmpc.d['e']))
-		print(type(tmpc.d.e))
-		print(type(tmpc.d.f))
-		print(tmpc)
-		a=Clict()
-		a.b.c.d.e.f.g.h.i.j.k.l.m.n='test'
-		print(a)
+	def test_keys(s):
+		c = Clict(a=1, b=2)
+		s.assertListEqual(list(c.keys()), ['a', 'b'])
 
+	def test_items(s):
+		c = Clict(a=1, b=2)
+		s.assertDictEqual(c.items(), {'a': 1, 'b': 2})
+
+	def test_values(s):
+		c = Clict(a=1, b=2)
+		s.assertListEqual(c.values(), [1, 2])
+
+	def test_set_parent(s):
+		c = Clict()
+		c.d.asplit.child='findme'
+		c.d.bsplit.child='fromhere'
+		# localparent=c.d.__setparent__('iamparent')
+		s.assertEqual(c.d.bsplit.__getparent__()().asplit.child,'findme')
+
+	def test_str(s):
+		c = Clict(a=1, b=2)
+		s.assertIsInstance(str(c), str)
+
+	def test_fancy_str(s):
+		c = Clict(a=1, b=2)
+		c.__setstrstyle__('fancy')
+		s.assertIsInstance(c.__str__(), str)
+
+	def test_convert(s):
+		c = Clict()
+		c.__convert__({'a': {'b': 2}})
+		s.assertIsInstance(c['a'], Clict)
+		s.assertEqual(c['a']['b'], 2)
+
+
+if __name__ == '__main__':
+	unittest.main()
