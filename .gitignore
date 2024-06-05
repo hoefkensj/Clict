@@ -1,4 +1,6 @@
 # Byte-compiled / optimized / DLL files
+.GITCOMMIT_MESSAGE
+.PYPI_APIKEY
 __pycache__/
 *.py[cod]
 *$py.class
