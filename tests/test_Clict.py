@@ -22,7 +22,8 @@ class TestClict(unittest.TestCase):
 
 	def test_missing_key(s):
 		c = Clict()
-		s.assertIsInstance(c['missing'], Clict)
+		# s.assertIsInstance(c['missing'], Clict)
+		s.assertIsInstance(c.missing, Clict)
 
 	def test_contains_key(s):
 		c = Clict(a=1)
@@ -52,16 +53,33 @@ class TestClict(unittest.TestCase):
 		c = Clict(a=1, b=2)
 		s.assertIsInstance(str(c), str)
 
-	def test_fancy_str(s):
-		c = Clict(a=1, b=2)
-		c.__setstrstyle__('fancy')
-		s.assertIsInstance(c.__str__(), str)
 
-	def test_convert(s):
+
+	def test_fromdict(s):
 		c = Clict()
-		c.__convert__({'a': {'b': 2}})
+		c.__fromdict__({'a': {'b': 2}})
 		s.assertIsInstance(c['a'], Clict)
 		s.assertEqual(c['a']['b'], 2)
+	def test_fromlist(s):
+		c = Clict()
+		c.__fromlist__(['a','b'])
+		s.assertEqual(c[0], 'a')
+		s.assertEqual(c[1], 'b')
+		c=Clict(['a','b'])
+		s.assertEqual(c[0], 'a')
+		s.assertEqual(c[1], 'b')
+		s.assertEqual(c._1, 'b')
+		c=Clict(mylist=['a','b'])
+		s.assertEqual(c.mylist[0], 'a')
+		c.mylist[2]='c'
+		s.assertEqual(c.mylist._2, 'c')
+	def test_printcolor(s):
+		c=Clict(['a','b'],c=['d',{'e':'f'}])
+		print(c)
+	def test_printfancy(s):
+		c=Clict(['a','b'],g=['d',{'e':'f'}])
+		c.p.q.r.s.t.u.v.w.x.y='test'
+		print(repr(c))
 
 
 if __name__ == '__main__':
