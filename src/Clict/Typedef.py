@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from Clict.lib.fnText import color_set
+from Clict.lib.fnText import cstr
 import sys
 
 
@@ -166,18 +166,12 @@ class Clict(dict):
 	def __str__(__s,O='\u007d', C='\u007d',cc=None):
 
 		def colorstr(__s, O='\u007b', C='\u007d'):
-
-
 			ITEMS = []
 			for item in __s.keys():
-				CC = cc or color_set()
-				ANSI = '\x1b[m\x1b[0;38;2;{COLOR}m{TXT}\x1b[m'.format(COLOR=';'.join([str(i) for i in CC['lgt']]), TXT='{TXT}')
-				O = '\x1b[m\x1b[1;48;2;{COLOR}m{TXT}\x1b[m'.format(COLOR=';'.join([str(i) for i in CC['drk']]), TXT=O)
-				C = '\x1b[m\x1b[1;48;2;{COLOR}m{TXT}\x1b[m'.format(COLOR=';'.join([str(i) for i in CC['drk']]), TXT=C)
-				KEY = ANSI.format(TXT=item)
+				KEY = cstr(item)
 				VAL = super().__getitem__(item)
 				if isinstance(VAL, str):
-					VAL = ANSI.format(TXT=VAL.__repr__())
+					VAL = cstr(VAL.__repr__())
 				elif isinstance(VAL,Clict):
 					VAL=VAL.__str__()
 				ITEMS += [' {KEY} : {VAL} '.format(KEY=KEY, VAL=VAL.__str__())]
@@ -194,7 +188,7 @@ class Clict(dict):
 		if sys.stdout.isatty():
 			rstr=treestr(__s)
 		else:
-			rstr=super().__repr__()
+			rstr=repr({k : __s[k] for k in __s if k in __s.keys()})
 		return rstr
 
 

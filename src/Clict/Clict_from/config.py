@@ -72,7 +72,7 @@ class from_Config(Clict):
 				if '_' in name:
 					if name.split('_')[0].isnumeric():
 						name='_'.join(name.split('_')[1:])
-				s[name]=fromConfig(item,cat=cat ,parent=s)
+				s[name]=from_Config(item,cat=cat ,parent=s)
 		elif s._type.file:
 			if s._type.config:
 				cfg = newConfig()
