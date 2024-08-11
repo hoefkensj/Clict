@@ -16,7 +16,25 @@ def getFileType(c):
 	r.disabled=isdisabled(c._path)
 	return r
 
-
+def makeUnique(c,Name):
+	def incSuffix(name):
+		if '#' in name:
+			parts=name.split('#')
+			if parts[-1].isnumeric():
+				name='#'.join([*[parts[:-1],str(int(parts[-1])+1)]])
+		else:
+			name+='#1'
+		return name
+	FUSE=1
+	name=Name.stem
+	while name in c:
+			if name != Name.name and FUSE:
+				name=Name.name
+				FUSE=0
+				continue
+			name=Name.stem
+			name=incSuffix(name)
+	return name
 
 def newConfig():
 	cfg = ConfigParser(interpolation=ExtendedInterpolation(),
@@ -67,23 +85,8 @@ class from_Config(Clict):
 		if not __s._type.disabled:
 			if __s._type.folder:
 				for item in [*__s._path.glob('*')]:
-					name=item.stem
 					cat=[*__s._cat,__s._name]
-					cfg=from_Config(item,cat=cat ,parent=__s)
-					unique=0;cnt=0
-					while not unique:
-						if name in __s:
-							if name==item.name:
-								cnt+=1
-								name=f'{name}.{cnt}'
-							else:
-								name=item.name
-						else:
-							unique=1
-
-					__s[name]=cfg
-
-
+					__s[makeUnique(__s,item)]=from_Config(item,cat=cat ,parent=__s)
 			else:
 				cfg=None
 				if __s._type.config:
