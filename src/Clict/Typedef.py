@@ -201,30 +201,30 @@ class Clict(dict):
 
 def treestr(s):
 	from textwrap import shorten
-	def rgb(c, txt=''):
-		RGB = {
-			'yellow': [255, 255, 0],
-			'red' 	: [255, 0,0],
-			'reset'	 : [],
-
-		}
-		Am=' \x1b[{C}m'
-		mask= ' {C}{TXT}{R}'
-		C= Am.format(C=RGB[c])
-		R= Am.format(C=RGB['reset'])
-		txt= mask.format(C=C,R =R,TXT=txt)
+	# def rgb(c, txt=''):
+	# 	RGB = {
+	# 		'yellow': [255, 255, 0],
+	# 		'red' 	: [255, 0,0],
+	# 		'reset'	 : [],
+	#
+	# 	}
+	# 	Am=' \x1b[{C}m'
+	# 	mask= ' {C}{TXT}{R}'
+	# 	C= Am.format(C=RGB[c])
+	# 	R= Am.format(C=RGB['reset'])
+	# 	txt= mask.format(C=C,R =R,TXT=txt)
 	# from src.isPyPackage.ansi_colors import reset,rgb,yellow,red
-	def hasDict(s):
-		return any([True for key in s if isinstance(s[key], dict)])
+	# def hasDict(s):
+	# 	return any([True for key in s if isinstance(s[key], dict)])
 
-	def overview(s):
-		dicts = [item for item in s if isinstance(s[item], dict)]
-		sd = len(dicts)
-		ld = len(s) - sd
-		sd = rgb('yellow', sd)
-		ld = rgb('red', ld)
-		reset=rgb('reset')
-		return f'({sd}Groups+{ld}items){reset}'
+	# def overview(s):
+	# 	dicts = [item for item in s if isinstance(s[item], dict)]
+	# 	sd = len(dicts)
+	# 	ld = len(s) - sd
+	# 	sd = rgb('yellow', sd)
+	# 	ld = rgb('red', ld)
+	# 	reset=rgb('reset')
+	# 	return f'({sd}Groups+{ld}items){reset}'
 
 	def pTree(s, **k):
 		d = s
