@@ -156,7 +156,7 @@ class Clict(dict):
 	def __style(__s,**k):
 		ret=None
 		if k.get('str',k.get('repr')) != None:
-			strstyle = k.get('str', __s.opts['str'].get('style','tree'))
+			strstyle = k.get('str', __s.opts['str'].get('style','color'))
 			reprstyle = k.get('repr', __s.opts['repr'].get('style','tree'))
 			__s.__opts['str'].style=strstyle
 			__s.__opts['repr'].style=reprstyle

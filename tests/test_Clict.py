@@ -79,6 +79,7 @@ class TestClict(unittest.TestCase):
 	def test_printfancy(s):
 		c=Clict(['a','b'],g=['d',{'e':'f'}])
 		c.p.q.r.s.t.u.v.w.x.y='test'
+		print(c)
 		print(repr(c))
 
 
