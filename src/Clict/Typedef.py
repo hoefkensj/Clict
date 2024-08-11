@@ -16,6 +16,7 @@ class Clict(dict):
 		if a:	__s.__args__(*a)
 		if k:	__s.__kwargs__(**k)
 
+
 	def __setattr__(__s, k, v):
 		# print('setattr_called with:' ,f'{k=}{v=}')
 		k=__s.__expandkey__(k)
@@ -152,15 +153,17 @@ class Clict(dict):
 			Values += [super().__getitem__(key)]
 		return Values
 
-	def __setstrstyle__(__s, style):
-		styles={
-			'blackwhite': __s.__default_str__,
-			'color': __s.__colorstr__,
-			'fancy': __s.__fancystr__
-		}
-		mystyle=styles.get(style,styles.get('color'))
-		__s._strstyle=mystyle
-		return  mystyle
+	def __style(__s,**k):
+		ret=None
+		if k.get('str',k.get('repr')) != None:
+			strstyle = k.get('str', __s.opts['str'].get('style','tree'))
+			reprstyle = k.get('repr', __s.opts['repr'].get('style','tree'))
+			__s.__opts['str'].style=strstyle
+			__s.__opts['repr'].style=reprstyle
+		else:
+			ret=__s.__opts
+
+		return ret
 
 
 	def __str__(__s,O='\u007d', C='\u007d',cc=None):
@@ -178,17 +181,20 @@ class Clict(dict):
 			ITEMS = ','.join(ITEMS)
 			retstr = '{O}{TXT}{C}\x1b[m'.format(TXT=ITEMS, O=O, C=C)
 			return retstr
+		if __s.__style().str.style=='tree':
+			pstr=treestr(__s)
+		else:
 
-		if sys.stdout.isatty():
-			pstr=colorstr(__s)
-		else:
-			pstr=super().__str__()
+			if sys.stdout.isatty():
+				pstr=colorstr(__s)
+			else:
+				pstr=super().__str__()
 		return pstr
+
 	def __repr__(__s,O='\u007b', C='\u007d'):
-		if sys.stdout.isatty():
-			rstr=treestr(__s)
-		else:
-			rstr=repr({k : __s[k] for k in __s if k in __s.keys()})
+
+		rstr=treestr(__s)
+			# rstr=repr({k : __s[k] for k in __s if k in __s.keys()})
 		return rstr
 
 
