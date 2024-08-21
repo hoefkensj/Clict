@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from Clict.lib.fnText import cstr
+from Clict.lib.fnText import CStr
 import sys
 
 
@@ -95,6 +95,7 @@ class Clict(dict):
 				__s[key]=Clict(d[key])
 			else:
 				__s[key]=d[key]
+
 	def __fromlist__(__s,l):
 		for i,item in enumerate(l):
 			__s[__s.__expandkey__(i)]=item
@@ -153,92 +154,51 @@ class Clict(dict):
 			Values += [super().__getitem__(key)]
 		return Values
 
-	def __style(__s,**k):
-		ret=None
-		if k.get('str',k.get('repr')) != None:
-			strstyle = k.get('str', __s.opts['str'].get('style','color'))
-			reprstyle = k.get('repr', __s.opts['repr'].get('style','tree'))
-			__s.__opts['str'].style=strstyle
-			__s.__opts['repr'].style=reprstyle
+
+
+
+	def __str__(__s,Color=False):
+		if sys.stdout.isatty() or Color:
+			pstr=colorstr(__s)
 		else:
-			ret=__s.__opts
-
-		return ret
-
-
-	def __str__(__s,O='\u007d', C='\u007d',cc=None):
-
-		def colorstr(__s, O='\u007b', C='\u007d'):
-			ITEMS = []
-			for item in __s.keys():
-				KEY = cstr(item)
-				VAL = super().__getitem__(item)
-				if isinstance(VAL, str):
-					VAL = cstr(VAL.__repr__())
-				elif isinstance(VAL,Clict):
-					VAL=VAL.__str__()
-				ITEMS += [' {KEY} : {VAL} '.format(KEY=KEY, VAL=VAL.__str__())]
-			ITEMS = ','.join(ITEMS)
-			retstr = '{O}{TXT}{C}\x1b[m'.format(TXT=ITEMS, O=O, C=C)
-			return retstr
-		if __s.__style().str.style=='tree':
-			pstr=treestr(__s)
-		else:
-
-			if sys.stdout.isatty():
-				pstr=colorstr(__s)
-			else:
-				pstr=super().__str__()
+			pstr='\u007b'+','.join([f"{str(x)}:{str(__s[x])}" for x in __s])+'\u007d'
 		return pstr
 
-	def __repr__(__s,O='\u007b', C='\u007d'):
-
+	def __repr__(__s):
 		rstr=treestr(__s)
-			# rstr=repr({k : __s[k] for k in __s if k in __s.keys()})
 		return rstr
-
-
-
+def colorstr(s):
+	ITEMS = []
+	cc=CStr()
+	for key in s:
+		color=CStr()
+		KEY = color(key)
+		VAL = s[key]
+		if isinstance(VAL, str):
+			VAL = color(VAL.__repr__())
+		elif isinstance(VAL,dict):
+			VAL=VAL.__str__()
+		ITEMS += [' {KEY} : {VAL} '.format(KEY=KEY, VAL=VAL)]
+	ITEMS = ','.join(ITEMS)
+	retstr = '{O}{TXT}{C}\x1b[m'.format(TXT=ITEMS, O=cc(O), C=cc(C))
+	return retstr
 def treestr(s):
 	from textwrap import shorten
-	# def rgb(c, txt=''):
-	# 	RGB = {
-	# 		'yellow': [255, 255, 0],
-	# 		'red' 	: [255, 0,0],
-	# 		'reset'	 : [],
-	#
-	# 	}
-	# 	Am=' \x1b[{C}m'
-	# 	mask= ' {C}{TXT}{R}'
-	# 	C= Am.format(C=RGB[c])
-	# 	R= Am.format(C=RGB['reset'])
-	# 	txt= mask.format(C=C,R =R,TXT=txt)
-	# from src.isPyPackage.ansi_colors import reset,rgb,yellow,red
-	# def hasDict(s):
-	# 	return any([True for key in s if isinstance(s[key], dict)])
-
-	# def overview(s):
-	# 	dicts = [item for item in s if isinstance(s[item], dict)]
-	# 	sd = len(dicts)
-	# 	ld = len(s) - sd
-	# 	sd = rgb('yellow', sd)
-	# 	ld = rgb('red', ld)
-	# 	reset=rgb('reset')
-	# 	return f'({sd}Groups+{ld}items){reset}'
-
 	def pTree(s, **k):
 		d = s
 		keys = len(d.keys())
 		plines = []
 		for key in s:
-			dkey = shorten(
-				f"\x1b[32m{d[key]}\x1b[0m" if callable(d[key]) else str(d[key]), 80
-			)
+			if isinstance(d[key],list):
+				for item in d[key]:
+					if isinstance(item,dict):
+						lkey=listtree(d[key])
+			dkey = shorten(str(d[key]) if callable(d[key]) else repr(d[key]), 80	)
+
 			keys -= 1
 			TREE = "┗━━━┳━╼ " if keys == 0 else "┣━━━┳━╼ "
 			plines += [f"{TREE}{str(key)} :"]
-			if isinstance(d[key], Clict):
-				# plines[-1]=plines[-1].replace('━','┳',2,1)
+			if isinstance(d[key], dict):
 				clines = repr(d[key]).split('\n')
 				for l, line in enumerate(clines):
 					clines[l] = f"┃   {line}" if keys != 0 else f"    {line}"
@@ -248,3 +208,14 @@ def treestr(s):
 		return '\n'.join(plines)
 
 	return pTree(s)
+
+
+
+
+def listtree(lst):
+	tree=dict()
+	for i,item in enumerate(list):
+		tree[i]=item
+	tstr=treestr(tree)
+	print(tstr)
+	return tstr

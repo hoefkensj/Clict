@@ -5,36 +5,20 @@ from pathlib import Path
 from configparser import ConfigParser,ExtendedInterpolation
 from Clict.Typedef import Clict
 
-def getFileType(c):
-	ext=c._self.opts.suffix
-	def isconfig(): return bool(c._path.suffix.casefold() in ext)
-	def isdisabled(p): return bool(p.name.startswith('_') or p.suffix in ['.old','.bak','.not'])
+def getFileType(c,o):
+	select=o.suffix_include
+	ignore=o.suffix_exclude
+	isconfig= lambda t: any([(t == s)  for s in select])
+	isexclude= lambda t: any([(t == s)  for s in ignore])
+	isdisabled= lambda p: bool(p.startswith('_'))
 	r=Clict()
-	r.file=bool(c._path.is_file())
-	r.folder=bool(c._path.is_dir())
-	r.config=isconfig()
-	r.disabled=isdisabled(c._path)
+	r.file=bool(c.path.is_file())
+	r.folder=bool(c.path.is_dir())
+	r.config=isconfig(c.path.suffix)
+	r.ignore=isexclude(c.path.suffix)
+	r.disabled=isdisabled(c.path.stem)
 	return r
 
-def makeUnique(c,Name):
-	def incSuffix(name):
-		if '#' in name:
-			parts=name.split('#')
-			if parts[-1].isnumeric():
-				name='#'.join([*[parts[:-1],str(int(parts[-1])+1)]])
-		else:
-			name+='#1'
-		return name
-	FUSE=1
-	name=Name.stem
-	while name in c:
-			if name != Name.name and FUSE:
-				name=Name.name
-				FUSE=0
-				continue
-			name=Name.stem
-			name=incSuffix(name)
-	return name
 
 def newConfig():
 	cfg = ConfigParser(interpolation=ExtendedInterpolation(),
@@ -43,74 +27,99 @@ def newConfig():
 	cfg.optionxform = lambda option: option
 	return cfg
 
+
+def readConfig(file):
+	try:
+		cfg = newConfig()
+		cfg.read(file)
+	except Exception as E:
+		cfg = Clict()
+		cfg.file=file
+		cfg.error=E
+
 class from_Config(Clict):
 	__module__ = None
 	__qualname__ = "Clict"
 	__version__ = 1
-	def __init__(__s,p,cat=None,parent=None,**opts):
-		__s._path=Path(p)
-		__s._name=__s._path.stem
-		__s._parent= parent or None
-		__s._cat=cat or []
-		for item in opts:
-			if item in __s._optb:
-				__s._optb[item]=bool(opts.get(item))
-		__s._self=__s.__self__()
-		__s._type=getFileType(__s)
-
-
-
+	def __init__(__s,*a,**k):
+		__s.__args__(*a)
+		__s.__kwargs__(**k)
 		__s.__read__()
+	def __kwargs__(__s,**k):
+		self=k.pop('self',{})
+		opts=k.pop('opts',{})
+		__s.__self__(**self)
+		__s.__opts__(**opts)
+	def __args__(__s,*a):
+		for path in a[::-1]:
+			__s._self.path=path
 
-	def __self__(__s):
-		self=Clict()
-		self.name=__s._name
-		self.path=__s._path
-		self.file=__s._type.file
-		self.folder=__s._type.folder
-		self.config=__s._type.config
-		parent=__s.get('_parent')
-		if parent:
-			self.parent=parent.get('_name')
-		self.flag.strip.filesuffix = True
-		self.flag.strip.fileprefix = True
-		self.flag.strip.folderprefix = True
-		self.flag.strip.foldersuffix = True
-		self.flag.split.on_underscore = True
-		self.flag.ignore_dotfiles = True
-		self.opts.suffix= ['.conf','.config','.init', '.ini', '.cfg','.toml','.unit','.service','.profile']
-		return self
+	def __self__(__s,**self):
+		path=self.pop('p',self.pop('path',__s._self.path))
+		cat=self.pop('c',self.pop('cat',[]))
+		parent=self.pop('P',self.pop('parent',None))
+		name=self.pop('n',self.pop('name','root'))
+		path=Path(path).expanduser().resolve().absolute()
+		__s._self.path=path
+		__s._self.parent= lambda : parent
+		__s._self.name=path.name
+		__s._self.cat=cat
+	def __type__(__s):
+		t=getFileType(__s._self,__s._self.opts)
+		__s._self.type.file=t.file
+		__s._self.type.folder=t.folder
+		__s._self.type.config=t.config
+		__s._self.type.ignore=t.config
+		__s._self.type.disabled=t.disabled
+
+	def __opts__(__s,**opts):
+		__s._opts.strip_fileSuffix = True
+		__s._opts.strip_filePrefix = True
+		__s._opts.strip_folderPrefix = True
+		__s._opts.strip_folderSuffix = True
+		__s._opts.split_onUnderscore = True
+		__s._opts.include_dotFiles = False
+		__s._opts.include_dotFolders = False
+		__s._opts.suffix_include= ['.conf','.config','.init', '.ini', '.cfg','.toml','.unit','.service','.profile']
+		__s._opts.suffix_exclude= ['.bak','.old']
 
 	def __read__(__s):
-		if not __s._type.disabled:
-			if __s._type.folder:
-				for item in [*__s._path.glob('*')]:
-					cat=[*__s._cat,__s._name]
-					__s[makeUnique(__s,item)]=from_Config(item,cat=cat ,parent=__s)
-			else:
-				cfg=None
-				if __s._type.config:
-					try:
-						cfg = newConfig()
-						cfg.read(__s._self.path)
-					except Exception as E:
-						cfg={'error': E}
-				else:
-					try:
-						cfg = newConfig()
-						cfg.read(__s._path)
-					except Exception as E:
-						cfg=None
+		if __s._self.type.disabled or __s._self.type.ignore:
+			__s=None
+			return __s
+		else:
+			if __s._self.type.folder:
+				for item in [*__s._self.path.glob('*')]:
+					cat=[*__s._self.cat,__s._self.name]
+					s=Clict()
+					s.p=item
+					s.P=__s
+					s.name=item.name
+					s.cat=cat
+					cfg=from_Config(self=s)
+					if cfg is not None:
+						if __s.__getopt__('strip_folderPrefix'):
+							for ss in [*'-_# @']:
+								new = ss.join(cfg._self.name.split(ss)[1:])
+								cfg._self.name = new or cfg._self.name
+						__s[cfg._self.name]=cfg
 
-				if cfg is not None:
-					for section in cfg:
-						if section == 'DEFAULT':
-							continue
-						for key in cfg[section]:
-							if key in cfg['DEFAULT']:
-								if cfg['DEFAULT'][key] == cfg[section][key]:
-									continue
-							__s[section][key] = cfg[section][key]
+			elif __s._self.type.file:
+				if __s._self.type.config:
+					cfg=readConfig(__s._self.path)
+				else:
+					cfg=None
+			if cfg is not None:
+				for section in cfg:
+					if section == 'DEFAULT':
+						continue
+					for key in cfg[section]:
+						if key in cfg['DEFAULT']:
+							if cfg['DEFAULT'][key] == cfg[section][key]:
+								continue
+						__s[section][key] = cfg[section][key]
+			else:
+				__s=None
 
 
 # if '-' in section:
