@@ -5,7 +5,7 @@ import termios
 from pathlib import Path
 from configparser import ConfigParser,ExtendedInterpolation
 from Clict.Typedef import Clict
-from Clict.VERSION import VERSION
+
 def getFileType(c):
 	p=c._self.get('path')
 	isconfig= lambda t: t.casefold() in ['.ini','.conf','.cfg']
@@ -41,7 +41,7 @@ def readConfig(file):
 class from_Config(Clict):
 	__module__ = None
 	__qualname__ = "Clict"
-	__version__ =VERSION
+	__version__ ='0.5.03'
 	def __init__(__s,*a,**k):
 		__s.__args__(*a)
 		__s.__kwargs__(**k)

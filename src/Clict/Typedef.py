@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 from Clict.lib.fnText import CStr
-from Clict.VERSION import VERSION
+
 import sys
 
 
 class Clict(dict):
 	__module__ = None
 	__qualname__ = "Clict"
-	__version__ =VERSION
+	__version__ ='0.5.03'
 	def __new__(__c, *a, **k):
 		# print('__new__ called with:' ,f'{k=}{v=}')
 		return super().__new__(__c, *a, **k)
