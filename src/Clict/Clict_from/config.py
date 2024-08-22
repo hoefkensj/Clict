@@ -41,7 +41,7 @@ def readConfig(file):
 class from_Config(Clict):
 	__module__ = None
 	__qualname__ = "Clict"
-	__version__ ='0.5.03'
+	__version__ ='0.5.04'
 	def __init__(__s,*a,**k):
 		__s.__args__(*a)
 		__s.__kwargs__(**k)
