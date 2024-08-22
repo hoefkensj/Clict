@@ -6,7 +6,7 @@ import sys
 class Clict(dict):
 	__module__ = None
 	__qualname__ = "Clict"
-	__version__ = 1
+	__version__ =
 	def __new__(__c, *a, **k):
 		# print('__new__ called with:' ,f'{k=}{v=}')
 		return super().__new__(__c, *a, **k)
@@ -190,9 +190,8 @@ def treestr(s):
 		plines = []
 		for key in s:
 			if isinstance(d[key],list):
-				for item in d[key]:
-					if isinstance(item,dict):
-						lkey=listtree(d[key])
+				dkey=listtree(d[key])
+
 			dkey = shorten(str(d[key]) if callable(d[key]) else repr(d[key]), 80	)
 
 			keys -= 1
@@ -211,11 +210,11 @@ def treestr(s):
 
 
 
-
 def listtree(lst):
-	tree=dict()
-	for i,item in enumerate(list):
-		tree[i]=item
-	tstr=treestr(tree)
-	print(tstr)
-	return tstr
+	tree=Clict()
+	for i,item in enumerate(lst):
+		if isinstance(item,dict):
+			tree[i]=treestr(Clict(item))
+		else:
+			tree[i]=repr(item)
+	return tree

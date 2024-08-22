@@ -17,8 +17,14 @@ class TestFromConfig(unittest.TestCase):
 		config = from_Config(Path('./config'))
 		self.assertTrue(config._self.type.folder)
 		self.assertEqual(config._self.name, "config")
-		print(repr(config.__opts__()))
+		print(repr(config._self))
+		print('------------')
+		for item in config:
+			print(repr(config[item]._self))
+		print('------------')
+
 		print(repr(config))
+		print('\n\n\n\n\n\n')
 	# def test_ignore_dotfiles(self):
 	# 	# Test that dotfiles are ignored when ignore_dotfiles is set to True
 	# 	config = from_Config(self.dot_file)

@@ -1,22 +1,22 @@
 
 #!/usr/bin/env python
 import os
+import termios
 from pathlib import Path
 from configparser import ConfigParser,ExtendedInterpolation
 from Clict.Typedef import Clict
 
-def getFileType(c,o):
-	select=o.suffix_include
-	ignore=o.suffix_exclude
-	isconfig= lambda t: any([(t == s)  for s in select])
-	isexclude= lambda t: any([(t == s)  for s in ignore])
-	isdisabled= lambda p: bool(p.startswith('_'))
+def getFileType(c):
+	p=c._self.get('path')
+	isconfig= lambda t: t.casefold() in ['.ini','.conf','.cfg']
+	isexclude= lambda t: t.casefold() in  ['.bak','.old','.disabled','.toml']
+	isdisabled= lambda p: p.startswith('_')
 	r=Clict()
-	r.file=bool(c.path.is_file())
-	r.folder=bool(c.path.is_dir())
-	r.config=isconfig(c.path.suffix)
-	r.ignore=isexclude(c.path.suffix)
-	r.disabled=isdisabled(c.path.stem)
+	r.file=p.is_file()
+	r.folder=p.is_dir()
+	r.config=isconfig(t=p.suffix)
+	r.ignore=isexclude(t=p.suffix)
+	r.disable=isdisabled(p.name)
 	return r
 
 
@@ -36,15 +36,17 @@ def readConfig(file):
 		cfg = Clict()
 		cfg.file=file
 		cfg.error=E
+	return cfg
 
 class from_Config(Clict):
 	__module__ = None
 	__qualname__ = "Clict"
-	__version__ = 1
+	__version__ = "1.10"
 	def __init__(__s,*a,**k):
 		__s.__args__(*a)
 		__s.__kwargs__(**k)
 		__s.__read__()
+
 	def __kwargs__(__s,**k):
 		self=k.pop('self',{})
 		opts=k.pop('opts',{})
@@ -53,6 +55,7 @@ class from_Config(Clict):
 	def __args__(__s,*a):
 		for path in a[::-1]:
 			__s._self.path=path
+			__s.__type__()
 
 	def __self__(__s,**self):
 		path=self.pop('p',self.pop('path',__s._self.path))
@@ -64,13 +67,15 @@ class from_Config(Clict):
 		__s._self.parent= lambda : parent
 		__s._self.name=path.name
 		__s._self.cat=cat
+		__s.__type__()
+
 	def __type__(__s):
-		t=getFileType(__s._self,__s._self.opts)
+		t=getFileType(__s)
 		__s._self.type.file=t.file
 		__s._self.type.folder=t.folder
 		__s._self.type.config=t.config
-		__s._self.type.ignore=t.config
-		__s._self.type.disabled=t.disabled
+		__s._self.type.ignore=t.ignore
+		__s._self.type.disable=t.disable
 
 	def __opts__(__s,**opts):
 		__s._opts.strip_fileSuffix = True
@@ -81,14 +86,17 @@ class from_Config(Clict):
 		__s._opts.include_dotFiles = False
 		__s._opts.include_dotFolders = False
 		__s._opts.suffix_include= ['.conf','.config','.init', '.ini', '.cfg','.toml','.unit','.service','.profile']
-		__s._opts.suffix_exclude= ['.bak','.old']
+		__s._opts.suffix_exclude= ['bak','old']
 
 	def __read__(__s):
-		if __s._self.type.disabled or __s._self.type.ignore:
-			__s=None
-			return __s
+		if __s._self.type.get('ignore'):
+			__s.CONFIG = 'IGNORED'
+			__s._self.name=f'_{__s._self.name}'
+		elif __s._self.type.get('disabled'):
+			__s.CONFIG = 'DISABLED'
+			__s._self.name=f'_{__s._self.name}'
 		else:
-			if __s._self.type.folder:
+			if __s._self.type.get('folder'):
 				for item in [*__s._self.path.glob('*')]:
 					cat=[*__s._self.cat,__s._self.name]
 					s=Clict()
@@ -97,30 +105,20 @@ class from_Config(Clict):
 					s.name=item.name
 					s.cat=cat
 					cfg=from_Config(self=s)
-					if cfg is not None:
-						if __s.__getopt__('strip_folderPrefix'):
-							for ss in [*'-_# @']:
-								new = ss.join(cfg._self.name.split(ss)[1:])
-								cfg._self.name = new or cfg._self.name
-						__s[cfg._self.name]=cfg
+					__s[cfg._self.name]=cfg
 
-			elif __s._self.type.file:
-				if __s._self.type.config:
-					cfg=readConfig(__s._self.path)
-				else:
-					cfg=None
-			if cfg is not None:
-				for section in cfg:
-					if section == 'DEFAULT':
-						continue
-					for key in cfg[section]:
-						if key in cfg['DEFAULT']:
-							if cfg['DEFAULT'][key] == cfg[section][key]:
-								continue
-						__s[section][key] = cfg[section][key]
-			else:
-				__s=None
 
+			elif __s._self.type.get('file'):
+				cfg=readConfig(__s._self.path)
+				if isinstance(cfg,ConfigParser):
+					for section in cfg:
+						if section == 'DEFAULT':
+							continue
+						for key in cfg[section]:
+							if key in cfg['DEFAULT']:
+								if cfg['DEFAULT'][key] == cfg[section][key]:
+									continue
+							__s[section][key] = cfg[section][key]
 
 # if '-' in section:
 # 	for key in cfg[section]:
