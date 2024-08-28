@@ -23,8 +23,8 @@ class TestClict(unittest.TestCase):
 		s.assertIn('a', c)
 		s.assertNotIn('d', c)
 		s.assertListEqual(list(c.keys()), ['a', 'b'])
-		s.assertDictEqual(c.items(), {'a': 1, 'b': 2})
-		s.assertListEqual(c.values(), [1, 2])
+		s.assertDictEqual(c._items(), {'a': 1, 'b': 2})
+		s.assertListEqual(c._values(), [1, 2])
 
 	def test_set_parent(s):
 		c = Clict()

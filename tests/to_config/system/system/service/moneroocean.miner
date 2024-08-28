@@ -1,0 +1,12 @@
+[Unit]
+Description : Monero miner service
+
+[Service]
+ExecStart : /home/hoefkens/moneroocean/xmrig --config=/home/hoefkens/moneroocean/config.json
+Restart : always
+Nice : 10
+CPUWeight : 1
+
+[Install]
+WantedBy : multi-user.target
+

@@ -25,6 +25,21 @@ class TestFromConfig(unittest.TestCase):
 
 		print(repr(config))
 		print('\n\n\n\n\n\n')
+
+	def test_sysdfolder(self):
+		# Test handling of a file with a valid config extension
+		config = from_Config(Path('/etc/systemd'))
+		self.assertTrue(config._self.type.folder)
+		# self.assertEqual(config._self.name, "config")
+		print(repr(config))
+		print('------------')
+		for item in config:
+			print(repr(config[item]))
+		print('------------')
+		print('\n\n\n\n\n\n')
+
+
+
 	# def test_ignore_dotfiles(self):
 	# 	# Test that dotfiles are ignored when ignore_dotfiles is set to True
 	# 	config = from_Config(self.dot_file)

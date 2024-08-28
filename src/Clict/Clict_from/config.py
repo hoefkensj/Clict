@@ -3,14 +3,18 @@
 import os
 import termios
 from pathlib import Path
-from configparser import ConfigParser,ExtendedInterpolation
+from configparser import ConfigParser,ExtendedInterpolation,BasicInterpolation,RawConfigParser
 from Clict.Typedef import Clict
 
 def getFileType(c):
-	p=c._self.get('path')
-	isconfig= lambda t: t.casefold() in ['.ini','.conf','.cfg']
-	isexclude= lambda t: t.casefold() in  ['.bak','.old','.disabled','.toml']
-	isdisabled= lambda p: p.startswith('_')
+	p=c._self._get('path')
+
+	exc=c._opts.suffix_exclude
+	inc=c._opts.suffix_include
+	isconfig= lambda t: t.casefold() in inc
+	isexclude= lambda t: t.casefold() in exc
+	isdisabled= lambda n: n.startswith('_')
+	iscustom=lambda t :  t.casefold() not in[*inc,*exc]
 	r=Clict()
 	r.file=p.is_file()
 	r.folder=p.is_dir()
@@ -20,22 +24,35 @@ def getFileType(c):
 	return r
 
 
-def newConfig():
-	cfg = ConfigParser(interpolation=ExtendedInterpolation(),
-										 delimiters=':',
-										 allow_no_value=True)  # create empty config
-	cfg.optionxform = lambda option: option
-	return cfg
+
+
 
 
 def readConfig(file):
-	try:
-		cfg = newConfig()
-		cfg.read(file)
-	except Exception as E:
-		cfg = Clict()
-		cfg.file=file
-		cfg.error=E
+	def testconfig(c):
+		for section in c:
+			for key in c[section]:
+					test=c[section][key]
+
+	opts={'delimiters':(':', '='), 'allow_no_value':True}
+	CEI = lambda : ConfigParser(interpolation=ExtendedInterpolation(),**opts,strict=False)
+	CBI = lambda : ConfigParser(interpolation=BasicInterpolation(),**opts)
+	CNI = lambda : ConfigParser(interpolation=None,**opts)
+	CRP = lambda : RawConfigParser(**opts,strict=False)
+
+	cfg=None
+	i=0
+	while i<4:
+		try:
+			cfg = [CEI,CBI,CNI,CRP][i]()
+			parser=['extended','basic','none','raw'][i]
+			cfg.optionxform = lambda option: option
+			cfg.read(file)
+			testconfig(cfg)
+			break
+		except Exception as E:
+			i+=1
+
 	return cfg
 
 class from_Config(Clict):
@@ -55,7 +72,7 @@ class from_Config(Clict):
 	def __args__(__s,*a):
 		for path in a[::-1]:
 			__s._self.path=path
-			__s.__type__()
+			__s.__self__()
 
 	def __self__(__s,**self):
 		path=self.pop('p',self.pop('path',__s._self.path))
@@ -66,10 +83,13 @@ class from_Config(Clict):
 		__s._self.path=path
 		__s._self.parent= lambda : parent
 		__s._self.name=path.name
+		__s._self.stem=path.stem
+		__s._self.suffix=path.suffix[1:]
 		__s._self.cat=cat
 		__s.__type__()
 
 	def __type__(__s):
+
 		t=getFileType(__s)
 		__s._self.type.file=t.file
 		__s._self.type.folder=t.folder
@@ -85,40 +105,63 @@ class from_Config(Clict):
 		__s._opts.split_onUnderscore = True
 		__s._opts.include_dotFiles = False
 		__s._opts.include_dotFolders = False
-		__s._opts.suffix_include= ['.conf','.config','.init', '.ini', '.cfg','.toml','.unit','.service','.profile']
-		__s._opts.suffix_exclude= ['bak','old']
+		__s._opts.suffix_include= ['.conf','.config','.init', '.ini', '.cfg','.toml','.profile']
+		__s._opts.suffix_exclude= ['.bak','.old','.disabled','.toml']
 
 	def __read__(__s):
-		if __s._self.type.get('ignore'):
-			__s.CONFIG = 'IGNORED'
-			__s._self.name=f'_{__s._self.name}'
-		elif __s._self.type.get('disabled'):
-			__s.CONFIG = 'DISABLED'
-			__s._self.name=f'_{__s._self.name}'
-		else:
-			if __s._self.type.get('folder'):
-				for item in [*__s._self.path.glob('*')]:
-					cat=[*__s._self.cat,__s._self.name]
-					s=Clict()
-					s.p=item
-					s.P=__s
-					s.name=item.name
-					s.cat=cat
-					cfg=from_Config(self=s)
-					__s[cfg._self.name]=cfg
+		if __s._self.type.get('folder'):
+			__s.__folder__()
 
+		elif __s._self.type.get('file'):
+				c=Clict()
 
-			elif __s._self.type.get('file'):
 				cfg=readConfig(__s._self.path)
-				if isinstance(cfg,ConfigParser):
-					for section in cfg:
-						if section == 'DEFAULT':
-							continue
-						for key in cfg[section]:
-							if key in cfg['DEFAULT']:
-								if cfg['DEFAULT'][key] == cfg[section][key]:
-									continue
-							__s[section][key] = cfg[section][key]
+				for section in cfg:
+					if section == 'DEFAULT':
+						continue
+					for key in cfg[section]:
+						# if key in cfg['DEFAULT']:
+						# 	if cfg['DEFAULT'][key] == cfg[section][key]:
+						# 		continue
+						c[section][key] = cfg[section][key]
+
+
+					if len(c[section])==0:
+						c[section]=str(None)
+				if len(c)==0:
+					c=str(None)
+				else:
+					for section in c:
+						for key in c[section]:
+							__s[section][key]=c[section][key]
+
+		else:
+			print(__s._self.get('path'), 'is not a config',__s.error)
+
+
+
+
+	def __folder__(__s):
+		itemlist = [*__s._self.path.glob('*')]
+		for item in [*__s._self.path.glob('*')]:
+			itemlist.remove(item)
+			cat = [*__s._self.cat, __s._self.name]
+			s = Clict()
+			if item.suffix not in __s._opts.suffix_exclude:
+				s.p = item
+				s.P = __s
+				s.name = item.name
+				s.suffix = item.suffix[1:]
+				s.stem = item.stem
+				s.cat = cat
+				name = s.stem.replace('.', '_')
+				if item.suffix in __s._opts.suffix_include:
+					__s[name] = from_Config(self=s, opts=__s._opts)
+				elif len(item.suffix) != 0:
+					__s[item.suffix[1:]][name]=from_Config(self=s, opts=__s._opts)
+				else:
+					__s[name] = from_Config(self=s, opts=__s._opts)
+
 
 # if '-' in section:
 # 	for key in cfg[section]:

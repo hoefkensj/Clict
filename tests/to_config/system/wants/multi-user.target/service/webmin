@@ -1,0 +1,20 @@
+[Unit]
+Description : Webmin server daemon
+Wants : network-online.target
+After : network.target network-online.target
+
+[Service]
+Environment : "PERLLIB=/opt/lampp/htdocs/webmin"
+ExecStart : /opt/lampp/htdocs/webmin/miniserv.pl /etc/webmin/miniserv.conf
+ExecStop : /bin/kill $MAINPID
+ExecReload : /bin/kill -HUP $MAINPID
+PIDFile : /var/webmin/miniserv.pid
+Type : forking
+Restart : always
+RestartSec : 2s
+TimeoutSec : 15s
+TimeoutStopSec : 300s
+
+[Install]
+WantedBy : multi-user.target
+

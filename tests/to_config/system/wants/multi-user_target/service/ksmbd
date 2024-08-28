@@ -1,0 +1,16 @@
+[Unit]
+Description : ksmbd userspace daemon
+Requires : modprobe@ksmbd.service
+Wants : network-online.target
+After : modprobe@ksmbd.service network.target network-online.target
+
+[Service]
+Type : forking
+PIDFile : /run/ksmbd.lock
+ExecStart : /usr/sbin/ksmbd.mountd
+ExecReload : /usr/sbin/ksmbd.control --reload
+ExecStop : /usr/sbin/ksmbd.control --shutdown
+
+[Install]
+WantedBy : multi-user.target
+

@@ -1,0 +1,5 @@
+[Service]
+PIDFile : /run/danctnix/dhcpd4.pid
+User : root
+ExecStart : /usr/bin/dhcpd -4 -q -cf /etc/danctnix/dhcpd.conf -pf /run/danctnix/dhcpd4.pid -lf /run/danctnix/dhcpd4.lease
+

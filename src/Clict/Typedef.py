@@ -133,22 +133,22 @@ class Clict(dict):
 				k=f'{pfx}{k}'
 		return k
 
-	def get(__s,k,default=None):
+	def _get(__s,k,default=None):
 		# print(f'get called with {k}')
 		k=__s.__expandkey__(k)
 		return super().get(k)
 
-	def keys(__s):
+	def _keys(__s):
 		return __s.__clean__()
 
-	def items(__s):
+	def _items(__s):
 		Items={}
 		keys= __s.__clean__()
 		for key in keys:
 			Items[key]=super().__getitem__(key)
 		return Items
 
-	def values(__s):
+	def _values(__s):
 		Values=[]
 		keys = __s.__clean__()
 		for key in keys:
@@ -156,10 +156,8 @@ class Clict(dict):
 		return Values
 
 
-
-
 	def __str__(__s,Color=False):
-		if sys.stdout.isatty() or Color:
+		if sys.stdout.isatty() and Color==True:
 			pstr=colorstr(__s)
 		else:
 			pstr='\u007b'+','.join([f"{str(x)}:{str(__s[x])}" for x in __s])+'\u007d'
@@ -187,7 +185,7 @@ def treestr(s):
 	from textwrap import shorten
 	def pTree(s, **k):
 		d = s
-		keys = len(d.keys())
+		keys = len(d._keys())
 		plines = []
 		for key in s:
 			if isinstance(d[key],list):
