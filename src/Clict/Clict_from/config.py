@@ -4,8 +4,8 @@ import os
 import termios
 from pathlib import Path
 from configparser import ConfigParser,ExtendedInterpolation,BasicInterpolation,RawConfigParser
-from Clict.Typedef import Clict
-
+from Clict.Typedef import ClictSelf as Clict
+from contextlib import suppress
 def getFileType(c):
 	p=c._self._get('path')
 
@@ -16,6 +16,7 @@ def getFileType(c):
 	isdisabled= lambda n: n.startswith('_')
 	iscustom=lambda t :  t.casefold() not in[*inc,*exc]
 	r=Clict()
+	r.exists=p.exists()
 	r.file=p.is_file()
 	r.folder=p.is_dir()
 	r.config=isconfig(t=p.suffix)
@@ -30,9 +31,13 @@ def getFileType(c):
 
 def readConfig(file):
 	def testconfig(c):
-		for section in c:
-			for key in c[section]:
-					test=c[section][key]
+		result=False
+		with suppress(Exception):
+			for section in c:
+				for key in c[section]:
+						test=c[section][key]
+				return True
+		return result
 
 	opts={'delimiters':(':', '='), 'allow_no_value':True}
 	CEI = lambda : ConfigParser(interpolation=ExtendedInterpolation(),**opts,strict=False)
@@ -43,14 +48,16 @@ def readConfig(file):
 	cfg=None
 	i=0
 	while i<4:
-		try:
-			cfg = [CEI,CBI,CNI,CRP][i]()
-			parser=['extended','basic','none','raw'][i]
-			cfg.optionxform = lambda option: option
-			cfg.read(file)
-			testconfig(cfg)
+		cfg = [CEI,CBI,CNI,CRP][i]()
+		parser=['extended','basic','none','raw'][i]
+		cfg.optionxform = lambda option: option
+		cfg.read(file)
+		if testconfig(cfg):
+			result=[CEI,CBI,CNI,CRP][i]()
+			result.optionxform = lambda option: option
+			result.read(file)
 			break
-		except Exception as E:
+		else:
 			i+=1
 
 	return cfg
@@ -92,6 +99,7 @@ class from_Config(Clict):
 
 		t=getFileType(__s)
 		__s._self.type.file=t.file
+		__s._self.type.exists=t.exists
 		__s._self.type.folder=t.folder
 		__s._self.type.config=t.config
 		__s._self.type.ignore=t.ignore
@@ -120,9 +128,9 @@ class from_Config(Clict):
 					if section == 'DEFAULT':
 						continue
 					for key in cfg[section]:
-						# if key in cfg['DEFAULT']:
-						# 	if cfg['DEFAULT'][key] == cfg[section][key]:
-						# 		continue
+						if key in cfg['DEFAULT']:
+							if cfg['DEFAULT'][key] == cfg[section][key]:
+								continue
 						c[section][key] = cfg[section][key]
 
 
@@ -136,7 +144,8 @@ class from_Config(Clict):
 							__s[section][key]=c[section][key]
 
 		else:
-			print(__s._self.get('path'), 'is not a config',__s.error)
+			__s.error=f'{__s._self.get("path")} : exists = {__s._self.type.exists}'
+			# print(, 'is not a config',__s.error)
 
 
 

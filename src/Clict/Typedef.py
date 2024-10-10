@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from Clict.lib.fnText import CStr
-
 import sys
 
 
@@ -8,6 +7,7 @@ class Clict(dict):
 	__module__ = None
 	__qualname__ = "Clict"
 	__version__ ='0.5.04'
+
 	def __new__(__c, *a, **k):
 		# print('__new__ called with:' ,f'{k=}{v=}')
 		return super().__new__(__c, *a, **k)
@@ -16,7 +16,6 @@ class Clict(dict):
 		super().__init__()
 		if a:	__s.__args__(*a)
 		if k:	__s.__kwargs__(**k)
-
 
 	def __setattr__(__s, k, v):
 		# print('setattr_called with:' ,f'{k=}{v=}')
@@ -217,3 +216,44 @@ def listtree(lst):
 		else:
 			tree[i]=repr(item)
 	return tree
+
+
+#
+
+class ClictSelf(Clict):
+	__module__ = None
+	__qualname__ = "Clict"
+	__version__ ='0.5.04'
+	def __init__(__s,*a,**k):
+		__s.__args__(*a)
+		__s.__kwargs__(**k)
+		super().__init__()
+
+	def __kwargs__(__s,**k):
+		self=k.pop('self',{})
+		__s.__self__(**self)
+		super().__kwargs__()
+
+	def __args__(__s,*a):
+		__s.__self__()
+		super().__args__()
+
+	def __self__(__s,**self):
+		opts=self.pop('opts',{})
+		name=self.pop('n',self.pop('name','root'))
+		parent=self.pop('P',self.pop('parent',None))
+		__s._self=Clict()
+		__s._self.name=name
+		__s._self.parent= lambda : parent
+		__s._self.opts=None
+		__s.__opts__(**opts)
+
+	def __opts__(__s,**opts):
+		color=opts.pop('color',True)
+		tree=opts.pop('tree',True)
+		__s._self.opts=Clict()
+		__s._self.opts.string.color = color
+		__s._self.opts.reprint.tree = tree
+
+	def __getSelf__(__s):
+		return __s._self
