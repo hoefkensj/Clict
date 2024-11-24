@@ -1,8 +1,0 @@
-[TEST_SECT]
-testkey : testval
-orly : false
-
-[TESTIKKEL]
-bal : testtest
-orly : false
-
