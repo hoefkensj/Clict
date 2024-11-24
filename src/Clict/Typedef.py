@@ -187,10 +187,15 @@ def colorstr(s):
 			VAL=VAL.__str__()
 		ITEMS += [' {KEY} : {VAL} '.format(KEY=KEY, VAL=VAL)]
 	ITEMS = ','.join(ITEMS)
-	retstr = '{O}{TXT}{C}\x1b[m'.format(TXT=ITEMS, O=cc(O), C=cc(C))
+	retstr = '{O}{TXT}{C}\x1b[m'.format(TXT=ITEMS, O=cc('{'), C=cc('}'))
 	return retstr
 def treestr(s):
+	from os import get_terminal_size
 	from textwrap import shorten
+	if sys.stdout.isatty():
+		x,y=get_terminal_size()
+	else:
+		x,y=80,24
 	def pTree(s, **k):
 		d = s
 		keys = len(d._keys())
@@ -198,8 +203,10 @@ def treestr(s):
 		for key in s:
 			if isinstance(d[key],list):
 				dkey=listtree(d[key])
-
-			dkey = shorten(str(d[key]) if callable(d[key]) else repr(d[key]), 80	)
+			elif callable(d[key]):
+				dkey = str(d[key])
+			else:
+				dkey=d[key]
 
 			keys -= 1
 			TREE = "┗━━━┳━╼ " if keys == 0 else "┣━━━┳━╼ "
@@ -210,7 +217,8 @@ def treestr(s):
 					clines[l] = f"┃   {line}" if keys != 0 else f"    {line}"
 				plines += clines
 			else:
-				plines[-1] = plines[-1].replace('┳', '━') + dkey
+				lkey=x-len(plines[-1])-5
+				plines[-1] = plines[-1].replace('┳', '━') + dkey.ljust(lkey)[:lkey]
 		return '\n'.join(plines)
 
 	return pTree(s)
