@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import unittest
-from Clict import from_Config
+from Clict import Config
 
 from unittest.mock import patch, MagicMock
 from pathlib import Path
@@ -14,7 +14,7 @@ class TestFromConfig(unittest.TestCase):
 
 	def test_folder(self):
 		# Test handling of a file with a valid config extension
-		config = from_Config(Path('./config'))
+		config = Config(Path('./config'))
 		self.assertTrue(config._self.type.folder)
 		self.assertEqual(config._self.name, "config")
 		print(repr(config._self))
@@ -28,8 +28,8 @@ class TestFromConfig(unittest.TestCase):
 
 	def test_sysdfolder(self):
 		# Test handling of a file with a valid config extension
-		config = from_Config(Path('/etc/systemd'))
-		self.assertTrue(config._self.type.folder)
+		config = Config(Path('/etc/systemd'))
+		self.assertTrue(config._self.stat.is_folder)
 		# self.assertEqual(config._self.name, "config")
 		print(repr(config))
 		print('------------')

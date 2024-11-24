@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from Clict.Typedef import Clict
-from Clict.Clict_from.config import from_Config
+from Clict.Clict import Clict
+from Clict.Clict_from.config import Config
 from Clict.Clict_to.config import to_config
 
 global VERSION

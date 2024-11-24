@@ -1,75 +1,142 @@
 
 #!/usr/bin/env python
 import os
+import sys
 import termios
 from pathlib import Path
 from configparser import ConfigParser,ExtendedInterpolation,BasicInterpolation,RawConfigParser
-from Clict.Typedef import ClictSelf as Clict
+from Clict.Clict import Clict
 from contextlib import suppress
-def getFileType(c):
-	p=c._self._get('path')
+from Clict.structs import self
 
-	exc=c._opts.suffix_exclude
-	inc=c._opts.suffix_include
-	isconfig= lambda t: t.casefold() in inc
-	isexclude= lambda t: t.casefold() in exc
+
+
+
+
+
+def CheckFile(__s):
+	def isCfg():
+		config=False
+		if __s._self.path.is_file():
+				opts = {
+					'delimiters': (':', '='),
+					'allow_no_value': True
+					}
+				tmp=RawConfigParser(**opts, strict=False)
+				config=True
+				try:
+					tmp.read(__s._self.path)
+				except Exception:
+					config=False
+		return config
+		
+		
+	isexclude= lambda t: t.casefold() in __s._opts.exclude.file.prefix
 	isdisabled= lambda n: n.startswith('_')
-	iscustom=lambda t :  t.casefold() not in[*inc,*exc]
+	p = __s._self._get('path')
 	r=Clict()
-	r.exists=p.exists()
-	r.file=p.is_file()
-	r.folder=p.is_dir()
-	r.config=isconfig(t=p.suffix)
+	r.config=isCfg()
 	r.ignore=isexclude(t=p.suffix)
 	r.disable=isdisabled(p.name)
-	return r
 
-
-
-
-
-
+	this=Clict()
+	this.exists = p.exists()
+	this.file   = p.is_file()
+	this.folder = p.is_dir()
+	this.config = r.config
+	this.ignore = r.ignore
+	this.disable = r.disable
+	__s._self.type=this
+	
 def readConfig(file):
-	def testconfig(c):
-		result=False
-		with suppress(Exception):
-			for section in c:
-				for key in c[section]:
-						test=c[section][key]
-				return True
+	result=False
+
+	def read(i):
+		a = ConfigParser(interpolation=intr[i](), **opts)
+		a.optionxform = lambda option: option
+		try:
+			result = Clict()
+			a.read(file)
+			cfg=a
+			for sec in cfg:
+				for key in cfg[sec]:
+					result[sec][key]=cfg[sec][key]
+		except Exception as E:
+			result=read(i+1)
 		return result
-
-	opts={'delimiters':(':', '='), 'allow_no_value':True}
-	CEI = lambda : ConfigParser(interpolation=ExtendedInterpolation(),**opts,strict=False)
-	CBI = lambda : ConfigParser(interpolation=BasicInterpolation(),**opts)
-	CNI = lambda : ConfigParser(interpolation=None,**opts)
-	CRP = lambda : RawConfigParser(**opts,strict=False)
-
-	cfg=None
+		
+	no=lambda :None
+	intr= [ExtendedInterpolation, BasicInterpolation, no]
+	opts = {
+		'delimiters': (':', '='),
+		'allow_no_value': True,
+		'strict': False
+		}
 	i=0
-	while i<4:
-		cfg = [CEI,CBI,CNI,CRP][i]()
-		parser=['extended','basic','none','raw'][i]
-		cfg.optionxform = lambda option: option
-		cfg.read(file)
-		if testconfig(cfg):
-			result=[CEI,CBI,CNI,CRP][i]()
-			result.optionxform = lambda option: option
-			result.read(file)
-			break
-		else:
-			i+=1
+	r=read(i)
+	if r == False:
+		a=RawConfigParser(**opts)
+		a.optionxform = lambda option: option
+		try:
+			r = Clict()
+			a.read(file)
+			cfg=a
+			for sec in cfg:
+				for key in cfg[sec]:
+					r[sec][key]=cfg[sec][key]
+		except Exception as E:
+			r=False
+		
 
-	return cfg
+		
+	return r
+	
 
-class from_Config(Clict):
-	__module__ = None
-	__qualname__ = "Clict"
-	__version__ ='0.5.04'
+
+
+# def readConfig(file):
+# 	def testconfig(c):
+# 		result=False
+# 		with suppress(Exception):
+# 			for section in c:
+# 				for key in c[section]:
+# 						test=c[section][key]
+# 				return True
+# 		return result
+#
+# 	opts={'delimiters':(':', '='), 'allow_no_value':True}
+# 	CEI = lambda : ConfigParser(interpolation=ExtendedInterpolation(),**opts,strict=False)
+# 	CBI = lambda : ConfigParser(interpolation=BasicInterpolation(),**opts)
+# 	CNI = lambda : ConfigParser(interpolation=None,**opts)
+# 	CRP = lambda : RawConfigParser(**opts,strict=False)
+#
+# 	cfg=None
+# 	i=0
+# 	while i<4:
+# 		cfg = [CEI,CBI,CNI,CRP][i]()
+# 		parser=['extended','basic','none','raw'][i]
+# 		cfg.optionxform = lambda option: option
+# 		cfg.read(file)
+# 		if testconfig(cfg):
+# 			result=[CEI,CBI,CNI,CRP][i]()
+# 			result.optionxform = lambda option: option
+# 			result.read(file)inc
+# 			break
+# 		else:
+# 			i+=1
+#
+# 	return cfg
+
+class Config(Clict):
+	__module__ = Clict
+	__qualname__ = "ClictConfig"
+	__version__ ='0.1.01'
 	def __init__(__s,*a,**k):
+		__s._self=self
 		__s.__args__(*a)
 		__s.__kwargs__(**k)
-		__s.__read__()
+		super().__init__()
+		__s.__readconfig__()
 
 	def __kwargs__(__s,**k):
 		self=k.pop('self',{})
@@ -97,13 +164,7 @@ class from_Config(Clict):
 
 	def __type__(__s):
 
-		t=getFileType(__s)
-		__s._self.type.file=t.file
-		__s._self.type.exists=t.exists
-		__s._self.type.folder=t.folder
-		__s._self.type.config=t.config
-		__s._self.type.ignore=t.ignore
-		__s._self.type.disable=t.disable
+		__s=CheckFile(__s)
 
 	def __opts__(__s,**opts):
 		__s._opts.strip_fileSuffix = True
@@ -111,12 +172,12 @@ class from_Config(Clict):
 		__s._opts.strip_folderPrefix = True
 		__s._opts.strip_folderSuffix = True
 		__s._opts.split_onUnderscore = True
-		__s._opts.include_dotFiles = False
-		__s._opts.include_dotFolders = False
-		__s._opts.suffix_include= ['.conf','.config','.init', '.ini', '.cfg','.toml','.profile']
-		__s._opts.suffix_exclude= ['.bak','.old','.disabled','.toml']
+		__s._opts.exclude.file.prefix = ['.','_']
+		__s._opts.exclude.file.suffix= ['.bak','.old','.disabled']
+		__s._opts.exclude.folder.prefix = ['.','_']
+		__s._opts.include.file.suffix= ['.conf','.config','.init', '.ini', '.cfg','.toml','.profile']
 
-	def __read__(__s):
+	def __readconfig__(__s):
 		if __s._self.type.get('folder'):
 			__s.__folder__()
 
@@ -124,6 +185,7 @@ class from_Config(Clict):
 				c=Clict()
 
 				cfg=readConfig(__s._self.path)
+
 				for section in cfg:
 					if section == 'DEFAULT':
 						continue
@@ -165,11 +227,11 @@ class from_Config(Clict):
 				s.cat = cat
 				name = s.stem.replace('.', '_')
 				if item.suffix in __s._opts.suffix_include:
-					__s[name] = from_Config(self=s, opts=__s._opts)
+					__s[name] = Config(self=s, opts=__s._opts)
 				elif len(item.suffix) != 0:
-					__s[item.suffix[1:]][name]=from_Config(self=s, opts=__s._opts)
+					__s[item.suffix[1:]][name]=Config(self=s, opts=__s._opts)
 				else:
-					__s[name] = from_Config(self=s, opts=__s._opts)
+					__s[name] = Config(self=s, opts=__s._opts)
 
 
 # if '-' in section:

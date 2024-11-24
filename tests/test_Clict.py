@@ -34,7 +34,7 @@ class TestClict(unittest.TestCase):
 		s.assertEqual(c.d.bsplit.__getparent__()().asplit.child,'findme')
 
 	# def test_str(s):
-	# 	c = Clict(a=1, b=2)
+	# 	c = ClictBase(a=1, b=2)
 	# 	s.assertIsInstance(str(c), str)
 	#
 

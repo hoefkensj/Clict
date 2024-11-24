@@ -1,0 +1,9 @@
+make nested clicts addressable with a single sting
+eg.
+
+a.b.c.e.f='test'
+a['b.c.e'].g='ikkel'
+print(a.b.c.e.g)
+-> ikkel
+or possibly
+a.get('b.c.e')

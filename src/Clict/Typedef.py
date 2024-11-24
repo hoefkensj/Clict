@@ -1,12 +1,15 @@
 #!/usr/bin/env python
+import copy
+
 from Clict.lib.fnText import CStr
+
 import sys
 
 
-class Clict(dict):
+class ClictBase(dict):
 	__module__ = None
 	__qualname__ = "Clict"
-	__version__ ='0.5.04'
+	__version__ ='0.6.1'
 
 	def __new__(__c, *a, **k):
 		# print('__new__ called with:' ,f'{k=}{v=}')
@@ -44,14 +47,14 @@ class Clict(dict):
 		return super().__getitem__(k)
 
 	def __dict__(s):
-		sdict=Clict()
+		sdict=ClictBase()
 		for attr in super().keys():
 			sdict[attr]=s[attr]
 		return sdict
 
 	def __missing__(__s,k):
 		# print('missing called with:' ,f'{k=}')
-		missing=Clict()
+		missing=ClictBase()
 		missing.__setparent__(__s)
 		__s.__setitem__(k,missing)
 		return super().__getitem__(k)
@@ -73,12 +76,12 @@ class Clict(dict):
 	def __kwargs__(__s,**k):
 		for key in k:
 			if isinstance(k[key],(dict,list)):
-				__s[key]=Clict(k[key])
+				__s[key]=ClictBase(k[key])
 			else:
 				__s[key]=k[key]
 
 	def __hidden__(__s):
-		hidden=Clict()
+		hidden=ClictBase()
 		pfx=__s.__pfx__()
 		for key in [*super().__iter__()]:
 			if str(key).startswith(pfx):
@@ -90,9 +93,9 @@ class Clict(dict):
 	def __fromdict__(__s, d):
 		for key in d:
 			if isinstance(d[key],dict):
-				__s[key]=Clict(d[key])
+				__s[key]=ClictBase(d[key])
 			elif isinstance(d[key],list):
-				__s[key]=Clict(d[key])
+				__s[key]=ClictBase(d[key])
 			else:
 				__s[key]=d[key]
 
@@ -153,8 +156,7 @@ class Clict(dict):
 		for key in keys:
 			Values += [super().__getitem__(key)]
 		return Values
-
-
+	
 	def __str__(__s,Color=False):
 		if sys.stdout.isatty() and Color==True:
 			pstr=colorstr(__s)
@@ -165,6 +167,13 @@ class Clict(dict):
 	def __repr__(__s):
 		rstr=treestr(__s)
 		return rstr
+
+	def template(__s):
+		return ClictBase(__s)
+
+
+
+
 def colorstr(s):
 	ITEMS = []
 	cc=CStr()
@@ -209,51 +218,18 @@ def treestr(s):
 
 
 def listtree(lst):
-	tree=Clict()
+	tree=ClictBase()
 	for i,item in enumerate(lst):
 		if isinstance(item,dict):
-			tree[i]=treestr(Clict(item))
+			tree[i]=treestr(ClictBase(item))
 		else:
 			tree[i]=repr(item)
 	return tree
 
 
-#
 
-class ClictSelf(Clict):
-	__module__ = None
-	__qualname__ = "Clict"
-	__version__ ='0.5.04'
-	def __init__(__s,*a,**k):
-		__s.__args__(*a)
-		__s.__kwargs__(**k)
-		super().__init__()
 
-	def __kwargs__(__s,**k):
-		self=k.pop('self',{})
-		__s.__self__(**self)
-		super().__kwargs__()
 
-	def __args__(__s,*a):
-		__s.__self__()
-		super().__args__()
 
-	def __self__(__s,**self):
-		opts=self.pop('opts',{})
-		name=self.pop('n',self.pop('name','root'))
-		parent=self.pop('P',self.pop('parent',None))
-		__s._self=Clict()
-		__s._self.name=name
-		__s._self.parent= lambda : parent
-		__s._self.opts=None
-		__s.__opts__(**opts)
 
-	def __opts__(__s,**opts):
-		color=opts.pop('color',True)
-		tree=opts.pop('tree',True)
-		__s._self.opts=Clict()
-		__s._self.opts.string.color = color
-		__s._self.opts.reprint.tree = tree
 
-	def __getSelf__(__s):
-		return __s._self

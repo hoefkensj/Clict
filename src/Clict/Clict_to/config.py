@@ -10,6 +10,8 @@ def newConfig():
 
 def to_config(c,p):
 	p=Path(p).expanduser().resolve().absolute()
+	if c._self.get('suffix'):
+		p=Path(f'{str(p)}.{ c._self.suffix}')
 	isdict=[]
 	for item in c:
 		for sub in c[item]:
