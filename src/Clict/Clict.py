@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from Clict.Typedef import ClictBase
-from Clict.structs import self
+from Clict.structs import Self
 
 
 
@@ -12,7 +12,7 @@ class Clict(ClictBase):
 	__version__ = '0.6.1'
 	
 	def __init__(__s, *a, **k):
-		__s._self=self
+		__s._self=Self(**k.get('self'))
 		if a:  __s.__args__(*a)
 		if k:  __s.__kwargs__(**k)
 		super().__init__()

@@ -8,7 +8,7 @@ def newConfig():
 	cfg.optionxform = lambda option: option
 	return cfg
 
-def to_config(c,p):
+def Config(c,p):
 	p=Path(p).expanduser().resolve().absolute()
 	if c._self.get('suffix'):
 		p=Path(f'{str(p)}.{ c._self.suffix}')

@@ -104,7 +104,7 @@ class ClictBase(dict):
 			__s[__s.__expandkey__(i)]=item
 
 	def __setparent__(__s,p):
-		__s._parent=lambda : p
+		__s._parent= p
 		return __s._parent
 
 	def __getparent__(__s):
@@ -218,7 +218,7 @@ def treestr(s):
 				plines += clines
 			else:
 				lkey=x-len(plines[-1])-5
-				plines[-1] = plines[-1].replace('┳', '━') + dkey.ljust(lkey)[:lkey]
+				plines[-1] = plines[-1].replace('┳', '━') + repr(dkey).ljust(lkey)[:lkey]
 		return '\n'.join(plines)
 
 	return pTree(s)
