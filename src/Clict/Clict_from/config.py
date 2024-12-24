@@ -81,14 +81,15 @@ def check_Config(file,opts):
 #
 # 	return cfg
 
-class Config(Clict):
+class Config():
 	__module__ = Clict
 	__qualname__ = "ClictConfig"
 	__version__ ='0.1.01'
-	def __init__(__s,*a,**k):
+	def __init__(__s,path=None,*a,**k):
+		__s._self=Self(path)
 		__s.__args__(*a)
 		__s.__kwargs__(**k)
-		__s.__opts__()
+		
 		__s._self=Self(__s._tmp.path)
 		super().__init__()
 		
@@ -96,8 +97,9 @@ class Config(Clict):
 		# __s.__type__()
 
 	def __kwargs__(__s,**k):
-		__s._tmp.self=k.pop('self',{})
-		__s._tmp.opts=k.pop('opts',{})
+		
+
+
 		__s.__inspect__()
 		__s.__type__()
 	def __args__(__s,*a):

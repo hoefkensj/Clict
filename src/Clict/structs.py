@@ -19,18 +19,21 @@ class Stat:
 		__s.ftype=getoutput(f'file {p}').split(':')[-1].split()
 
 
-
+@dataclass()
 class Self():
-	def __init__(__s,**self):
-		p=Path(self.get('path','root://'))
-		__s.name=self.get('name',p.name)
-		__s.suffix = p.suffix
-		__s.stem = p.stem
-		__s.parent=lambda:self.get('parent')
-		__s.path=Path(p,__s.name)
-		__s.cat=[]
-		__s.type=Stat(__s.path)
-
+	path:Path=field(default=None)
+	name:str=field(default='')
+	parent:callable=field(default=None)
+	cat:list[str]=field(default=None)
+	type:Stat=field(default=None)
+	def __post_init__(__s):
+		if __s.path is not None:
+			if not isinstance(Path,__s.path):
+				__s.path=Path(__s.path)
+				__s.
+			__s.name=__s.path.name
+			__s.parent=Path(__s.path.parent)
+			__s.cat=
 
 
 
