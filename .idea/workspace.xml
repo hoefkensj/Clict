@@ -4,27 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a7424be4-b9c0-43f1-aa37-dde1f249660b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Clict/clictConfig/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Clict/clictConfig/types.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Clict/from_other/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Clict/from_other/types.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Clict/struct.tree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Clict/types/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Clict/types/base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Clict/types/self.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Clict/Clict.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clict/Clict.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Clict/Clict_from/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clict/Clict_from/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Clict/Clict_from/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clict/clictConfig/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Clict/Typedef.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Clict/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clict/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Clict/args.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clict/args.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Clict/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clict/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Clict/structs.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clict/structs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_Clict.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_Clict.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_fromConf.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_fromConf.py" afterDir="false" />
+    <list default="true" id="a7424be4-b9c0-43f1-aa37-dde1f249660b" name="Changes" comment="major upgrade , clict works , config not">
+      <change afterPath="$PROJECT_DIR$/.idea/Clict.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,32 +57,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python tests.Python tests for test_Clict.TestClict.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for test_Clict.TestClict.test_fromlist.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for test_Clict.TestClict.test_missing.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for test_Clict.TestClict.test_set_get.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for test_Clict.TestClict.test_set_parent.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in test_Clict.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in test_Conf.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Typedef.executor&quot;: &quot;Run&quot;,
-    &quot;Python.types (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.types.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/jeroen/Development/Code/Python/Projects/Clict&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python tests.Python tests for test_Clict.TestClict.executor": "Debug",
+    "Python tests.Python tests for test_Clict.TestClict.test_fromlist.executor": "Run",
+    "Python tests.Python tests for test_Clict.TestClict.test_missing.executor": "Run",
+    "Python tests.Python tests for test_Clict.TestClict.test_set_get.executor": "Run",
+    "Python tests.Python tests for test_Clict.TestClict.test_set_parent.executor": "Run",
+    "Python tests.Python tests in test_Clict.py.executor": "Run",
+    "Python tests.Python tests in test_Conf.py.executor": "Run",
+    "Python.Typedef.executor": "Run",
+    "Python.config.executor": "Run",
+    "Python.types (1).executor": "Run",
+    "Python.types.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/home/jeroen/Development/Code/Python/Projects/Clict",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
-      &quot;Python&quot;
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "Python"
     ]
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings sdk-home="C:\Users\hoefk\venv\Scripts\python.exe">
@@ -120,7 +102,29 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Python tests for test_Clict.TestClict">
+  <component name="RunManager" selected="Python.config">
+    <configuration name="config" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Clict" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/Clict/clictConfig" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/Clict/clictConfig/config.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="fnterm" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="main" />
       <option name="ENV_FILES" value="" />
@@ -224,21 +228,6 @@
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for test_Clict.TestClict.test_fromlist" type="tests" factoryName="Autodetect" editBeforeRun="true" temporary="true" nameIsGenerated="true">
-      <module name="Clict" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_Clict.TestClict.test_fromlist&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-      <method v="2" />
-    </configuration>
     <configuration name="Python tests for test_Clict.TestClict.test_set_get" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Clict" />
       <option name="ENV_FILES" value="" />
@@ -256,11 +245,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.config" />
         <item itemvalue="Python tests.Python tests for test_Clict.TestClict" />
         <item itemvalue="Python tests.Python tests for test_Clict.TestClict.test_set_get" />
         <item itemvalue="Python.types (1)" />
         <item itemvalue="Python.types" />
-        <item itemvalue="Python tests.Python tests for test_Clict.TestClict.test_fromlist" />
       </list>
     </recent_temporary>
   </component>
@@ -280,6 +269,15 @@
       <option name="presentableId" value="Default" />
       <updated>1709224268118</updated>
     </task>
+    <task id="LOCAL-00001" summary="major upgrade , clict works , config not">
+      <option name="closed" value="true" />
+      <created>1739770634574</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1739770634574</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -292,5 +290,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="major upgrade , clict works , config not" />
+    <option name="LAST_COMMIT_MESSAGE" value="major upgrade , clict works , config not" />
   </component>
 </project>
