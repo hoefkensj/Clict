@@ -2,14 +2,14 @@
 #!/usr/bin/env python
 import os
 import sys
-import termios
+if not os.name=='nt':
+	import termios
 from pathlib import Path
 from configparser import ConfigParser,ExtendedInterpolation,BasicInterpolation,RawConfigParser
 from Clict.Clict import Clict
 from contextlib import suppress
-from Clict.structs import Self   ,Stat
-
-
+from Clict.types.self import ConfSelf
+from Clict.clictConfig.types import Stat
 
 
 def check_Config(file,opts):
@@ -39,7 +39,6 @@ def check_Config(file,opts):
 				a=RawConfigParser(**opts)
 				a.optionxform = lambda option: option
 				a.read(file)
-				cfg = Clict()
 				cfg=a
 				break
 
@@ -81,40 +80,37 @@ def check_Config(file,opts):
 #
 # 	return cfg
 
-class Config():
+class Config(Clict):
 	__module__ = Clict
 	__qualname__ = "ClictConfig"
 	__version__ ='0.1.01'
 	def __init__(__s,path=None,*a,**k):
-		__s._self=Self(path)
+		__s._self=ConfSelf()
+		__s.__self__(**k.pop('self',{}))
 		__s.__args__(*a)
 		__s.__kwargs__(**k)
 		
-		__s._self=Self(__s._tmp.path)
-		super().__init__()
+		__s.__load__()
 		
-
-		# __s.__type__()
-
-	def __kwargs__(__s,**k):
-		
-
-
-		__s.__inspect__()
-		__s.__type__()
-	def __args__(__s,*a):
-		for path in a[::-1]:
-			__s._tmp.path=Path(path)
+	def __self__(__s,**self):
+		name=self.get('name')
+		parent=self.get('parent')
+		path=Path(self.get('path'))
+		stat=Stat(path)
+		__s._self=ConfSelf(name=name,parent=parent,path=path,stat=stat)
 
 
-	def __inspect__(__s):
-			isexclude = lambda t: t.casefold() in __s._opts.exclude.file.prefix
-			isdisabled = lambda n: n.startswith('_')
-			p=__s._self.path
-			__s._self.type.config=__s.__iscfg__()
-			__s._self.type.ignore= isexclude(t=p.suffix)
-			__s._self.type.disable= isdisabled(p.name)
-			
+	def __load__(__s):
+		if __s._self.stat.folder:
+			__s.__folder__()
+
+		elif __s._self.stat.file:
+			__s.__readconfig__()
+	def __folder__(__s):
+		for item in __s.self().path.glob('*'):
+
+
+
 	def __iscfg__(__s,file=None):
 		path=__s._self.path
 		if file is not None:
@@ -136,31 +132,15 @@ class Config():
 			res=False
 		return 	res
 	
-	def __type__(__s):
-		if __s._self.type.folder:
-			__s.__folder__()
-		elif __s._self.type.file:
-			__s.__readconfig__()
-			
-	def __opts__(__s):
 		
-		__s._opts.strip_fileSuffix = True
-		__s._opts.strip_filePrefix = True
-		__s._opts.strip_folderPrefix = True
-		__s._opts.strip_folderSuffix = True
-		__s._opts.split_onUnderscore = True
-		__s._opts.exclude.file.prefix = ['.','_']
-		__s._opts.exclude.file.suffix= ['.bak','.old','.disabled']
-		__s._opts.exclude.folder.prefix = ['.','_']
-		__s._opts.include.file.suffix= ['.conf','.config','.init', '.ini', '.cfg','.toml','.profile']
-		__s._opts.parser= {'delimiters': (':', '='), 'allow_no_value': True ,		'strict': False}
+\
 
 	def __readconfig__(__s):
 
-
+				__s.__opts__()
 				c=Clict()
-				if __s._self.type.get('config'):
-					cfg=check_Config(__s._self.path,__s._opts.parser)
+				if __s.__iscfg__():
+					cfg=check_Config(__s._self.path,__s._self.parser)
 
 					for section in cfg:
 						if section == 'DEFAULT':
@@ -188,12 +168,13 @@ class Config():
 
 
 
-	def __folder__(__s):
-		itemlist = [*__s._self.path.glob('*')]
-		for item in [*__s._self.path.glob('*')]:
-			if item.is_dir() or  __s.__iscfg__(item):
-				s=Self(item)
-				__s[item.name]= Config(item, opts=__s._opts)
+	# def __folder__(__s):
+	# 	itemlist = [*__s._self.path.glob('*')]
+	# 	for item in [*__s._self.path.glob('*')]:
+	# 		self=Self(item)
+	# 		if (self.stat.folder)*(not self.stat.symlink) :
+	# 			s=Self(item)
+	# 			__s[item.name]= Config(item, self=s)
 # if '-' in section:
 # 	for key in cfg[section]:
 # 		if key in cfg['DEFAULT']:
@@ -212,3 +193,7 @@ class Config():
 #
 # and O('strip_folderprefix'):
 #
+
+
+a=Config(self={'path':'.'})
+print(a)

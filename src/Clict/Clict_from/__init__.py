@@ -1,1 +1,1 @@
-from Clict.Clict_from.config import Config as config
+from Clict.Clict_from.config import Config

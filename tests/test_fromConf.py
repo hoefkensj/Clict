@@ -14,9 +14,10 @@ class TestFromConfig(unittest.TestCase):
 
 	def test_folder(self):
 		# Test handling of a file with a valid config extension
-		config = fromConfig(Path('./config'))
-		self.assertTrue(config._self.type.folder)
-		self.assertEqual(config._self.name, "config")
+		config = fromConfig(Path('to_config'))
+		print(config._self)
+		self.assertTrue(config._self.stat.folder)
+		self.assertEqual("to_config",config._self.name)
 		print(repr(config._self))
 		print('------------')
 		for item in config:
@@ -29,7 +30,7 @@ class TestFromConfig(unittest.TestCase):
 	def test_sysdfolder(self):
 		# Test handling of a file with a valid config extension
 		config = fromConfig(Path('/etc/systemd'))
-		self.assertTrue(config._self.type.folder)
+		self.assertTrue(config._self.stat.folder)
 		# self.assertEqual(config._self.name, "config")
 		print(repr(config))
 		print('------------')

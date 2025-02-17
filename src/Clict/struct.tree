@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+- dinc :
+	-_self :  (attr )-> class(dinc)
+		- path : (?) ->  pathlib.Path()
+		- id : (?) -> dataclass(frozen=true)
+			- name : str
+			- parent: callable
+			- trace : [str]
+			- root	:  str
+			- 
+		- stats: (?) -> dataclass
+		- options:  (?) -> class(dinc) :
+		- format(?):
+		-
