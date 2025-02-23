@@ -4,18 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a7424be4-b9c0-43f1-aa37-dde1f249660b" name="Changes" comment="noidea">
-      <change afterPath="$PROJECT_DIR$/src/Clict/lib/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Clict/lib/fnText.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Clict/lib/fnterm.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Clict/lib/version.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/to_config/system/service/test.py" afterDir="false" />
+    <list default="true" id="a7424be4-b9c0-43f1-aa37-dde1f249660b" name="Changes" comment="faster and works">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Clict/Clict.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clict/Clict.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Clict/clictConfig/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clict/clictConfig/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Clict/clictConfig/types.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clict/clictConfig/types.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Clict/types/self.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clict/types/self.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -320,7 +312,15 @@
       <option name="project" value="LOCAL" />
       <updated>1739770774262</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="faster and works">
+      <option name="closed" value="true" />
+      <created>1740287801118</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1740287801118</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -337,6 +337,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="major upgrade , clict works , config not" />
     <MESSAGE value="noidea" />
-    <option name="LAST_COMMIT_MESSAGE" value="noidea" />
+    <MESSAGE value="faster and works" />
+    <option name="LAST_COMMIT_MESSAGE" value="faster and works" />
   </component>
 </project>

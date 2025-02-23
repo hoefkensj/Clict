@@ -2,6 +2,7 @@
 #!/usr/bin/env python
 import os
 import sys
+from logging import exception
 from re import escape,findall
 if not os.name=='nt':
 	import termios
@@ -159,14 +160,13 @@ class Config(Clict):
 				[folder.name.startswith(prefix) for prefix in __s._self.opts.exclude.file.prefix])
 			return result
 
-		# for item in [it for it in  __s.self().path.glob('*') if  it.absolute().name[0] not in ['_','.']]:
 		files=[Path(it) for it in __s.self().path.glob('*') if it.is_file()]
 		opts = {'delimiters': (':', '='), 'allow_no_value': True, 'strict': False}
 		cfgs=[]
 		for file in files:
 			if __s.__isconfig__(file):
 				cfgs+=[file]
-				self=ConfSelf(path=file.resolve(),stat=Stat(file),parent=__s)
+				self=ConfSelf(path=file.resolve(),type='config',stat=Stat(file),parent=__s)
 				__s[self.name]=Config(self=self)
 
 			# eval("S['" + "']['".join(partlist) + "']")
@@ -174,7 +174,7 @@ class Config(Clict):
 		for folder in folders:
 			if not excluded(folder):
 				if hasconfig(folder):
-					self=ConfSelf(parent=__s,path=folder,stat=Stat(folder))
+					self=ConfSelf(parent=__s,path=folder,stat=Stat(folder),type='config')
 					__s[self.name]=Config(self=self)
 
 
@@ -210,27 +210,49 @@ class Config(Clict):
 			# 	__s[cfg.self().name] = cfg
 
 
+	def __getparser__(s,parser):
+		opts = s._self.opts.parser.opts
+		rawparser=RawConfigParser(**opts)
+		rawparser.optionxform = lambda option: option
+		extparser=ConfigParser(interpolation=ExtendedInterpolation(), **opts)
+		extparser.optionxform = lambda option: option
+		basparser=ConfigParser(interpolation=BasicInterpolation(), **opts)
+		basparser.optionxform = lambda option: option
+		nonparser=ConfigParser(interpolation=None, **opts)
+		nonparser.optionxform = lambda option: option
+		parsers={'ext':extparser,'bas':basparser,'non':nonparser,'raw':rawparser}
+		return parsers[parser]
 
 
 	def __isfile__(__s):
-		opts = __s._self.opts.delimiters
+		opts = __s._self.opts
 		file=__s._self.path
-		Interpolation=GetBestInterpolation(file)
-		if not isinstance(Interpolation, RawConfigParser):
-			parser = ConfigParser(interpolation=Interpolation(), **opts)
-			parser.optionxorm = lambda option: option
-		else:
-			parser=Interpolation
-		parser.read(file)
-		for section in parser:
-			if section=='DEFAULT':
-				continue
-			else:
-				path=Path(__s._self.path,'#',section)
-				dct={}
-				for key in parser[section]:
-					dct[key]=parser[section][key]
-				__s[section]=Config(self=ConfSelf(name=f'{__s.path.name}#{key}',path=path,stat=Stat(path),type='section',types='section'),**dct)
+		parsers=['ext','bas','non','raw']
+		success=False
+		i=0
+		while True:
+			parser=__s.__getparser__(parsers[i])
+			try:
+				parser.read(file)
+				success=True
+				break
+			except Exception:
+				if i<4:
+					i+=1
+					continue
+				else:
+					success=False
+					break
+		if success:
+			for section in parser:
+				if section=='DEFAULT':
+					continue
+				else:
+					path=Path(__s._self.path,'#',section)
+					dct={}
+					for key in parser[section]:
+						dct[key]=parser[section][key]
+						__s[section]=Config(self=ConfSelf(name=f'{__s.path.name}#{key}',path=path,stat=Stat(path),type='section',types='section'),**dct)
 
 	def __issection__(__s):
 		print('works')
@@ -310,5 +332,5 @@ class ConfigSection(Clict):
 	# 		if (self.stat.folder)*(not self.stat.symlink) :
 	# 			s=Self(item)
 	# 			__s[item.name]= Config(item, self=s)
-a=Config(self={'path':'../../..'})
+a=Config(self={'path':'/etc/systemd'})
 print(repr(a))
