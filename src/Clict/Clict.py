@@ -44,7 +44,7 @@ class Clict(ClictBase):
 		from Clict.lib.fnterm import info
 		term = info()
 		if term['istty']:
-			if s._self.opts.str_color is True:
+			if s._self.opts.str.color is True:
 				ITEMS = []
 				cc = CStr()
 				for key in s:
@@ -66,19 +66,31 @@ class Clict(ClictBase):
 		return result
 	def __repr__(s):
 		from Clict.lib.fnterm import info
-		if s._self.opts.repr_tree:
+		if s._self.opts.repr.tree:
 			term = info()
 			result=s.__tree__()
 			if term['istty']:
 				width=term['get_size']()['C']
 				for line in result:
-					if len(line.format(**{k:'' for k in s._self.opts.colors_tree_rgb}))>width :
+					line=line.replace('{','\\u007b').replace('}','\\u007d')
+					tpls={i: f'\u007b{i}\u007d' for i in
+											  [i.split('}')[0] for i in line.split('{') if
+											   '}' in i] if i not in s._self.opts.colors.tree.rgb}
+					if len(line.format(**{k:'' for k in s._self.opts.colors.tree.rgb},**tpls))>width :
 						line=line[:width-5]+'...'
 			else:
 				for i,line in enumerate(result):
-					result[i]=line.format(**{k:'' for k in s._self.opts.colors_tree_rgb})
+					line = line.replace('{', '\\u007b').replace('}', '\\u007d')
+					tpls = {i: f'\u007b{i}\u007d' for i in
+							[i.split('}')[0] for i in line.split('{') if
+							 '}' in i] if i not in s._self.opts.colors.tree.rgb}
+					result[i]=line.format(**{k:'' for k in s._self.opts.colors.tree.rgb},**tpls)
 			result='\n'.join([*result,'\n'])
-			result=result.format(**s._self.opts.colors_tree_rgb)
+			result = result.replace('{', '\u007b').replace('}', '\u007d')
+			tpls = {i: f'\u007b{i}\u007d' for i in
+					[i.split('}')[0] for i in result.split('{') if
+					 '}' in i] if i not in s._self.opts.colors.tree.rgb}
+			result=result.format(**s._self.opts.colors.tree.rgb,**tpls)
 		else:
 			result=str(s)
 		return result
@@ -90,16 +102,16 @@ class Clict(ClictBase):
 		for key in s:
 			keys -= 1
 			TREE = "┗━━━┳━╼ " if keys == 0 else "┣━━━┳━╼ "
-			plines += ["{CLRTREE}{TREE}{CLRRESET}{CLRKEY}{KEY}{CLRRESET} :".format(TREE=TREE,KEY=str(key),**s._self.opts.colors_tree_tpl)]
+			plines += ["{CLRTREE}{TREE}{CLRRESET}{CLRKEY}{KEY}{CLRRESET} :".format(TREE=TREE,KEY=str(key).replace('{', '\\u007b').replace('}', '\\u007d'),**s._self.opts.colors.tree.tpl)]
 
 			if isinstance(s[key], dict):
-				clines = [line for line in repr(s[key]).split('\n') if not line.rstrip()=='']
+				clines = [line.replace('{' ,'[')  for line in repr(s[key]).split('\n') if not line.rstrip()=='']
 				for l, line in enumerate(clines):
-					clines[l] = "{CLRTREE}┃{CLRRESET}   {LINE}".format(LINE=line,**s._self.opts.colors_tree_tpl) if keys != 0 else f"    {line}"
+					clines[l] = "{CLRTREE}┃{CLRRESET}   {LINE}".format(LINE=line.replace('{' ,'['),**s._self.opts.colors.tree.tpl) if keys != 0 else f"    {line}"
 				plines+=clines
 			else:
 				val=repr(s[key])
-				plines[-1] = plines[-1].replace('┳', '━') +"{CLRVAL}{VAL}{CLRRESET}".format(VAL=val,**s._self.opts.colors_tree_tpl)
+				plines[-1] = plines[-1].replace('┳', '━') +"{CLRVAL}{VAL}{CLRRESET}".format(VAL=val.replace('{', '\\u007b').replace('}', '\\u007d'),**s._self.opts.colors.tree.tpl)
 		return plines
 
 

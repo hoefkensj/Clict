@@ -1,3 +1,4 @@
+from Clict.clictConfig.types import OptFlag
 from Clict.types.base  import Clict as clictbase
 from dataclasses import dataclass,field
 
@@ -32,26 +33,32 @@ class ConfSelf(clictbase):
 	def __init__(__s,*a,**k):
 		from pathlib import Path
 		__s.name= k.get('name')
-		__s.opts=Opts(k.get('opts'))
+		__s.opts=ConfOpts(**k.get('opts',{}))
 		__s.parent=k.get('parent')
 		__s.path=Path(k.get('path'))
 		__s.stat=k.get('stat')
-		__s.parser.delimiters=(':', '=')
-		__s.parser.allow_no_value=True
-		__s.parser.strict=False
-		if __s.name==None:
-			 __s.name=__s.path.name
+		__s.types=set(['config',*k.get('types',[])])
+		__s.type=k.get('type',[*__s.types][-1])
+		__s.parser=None
+		__s.interpolation=None
 
+		if __s.name is None:
+			if __s.opts.flags.strip_file_Suffix:
+				for suffix in __s.opts.include.file.suffix:
+					__s.name =__s.path.name.removesuffix(suffix)
 
 class ConfOpts(Opts):
-	def __init__(__s):
+	def __init__(__s,**opts):
 		super().__init__()
 		__s.exclude.file.prefix = ['.', '_']
 		__s.exclude.file.suffix = ['.bak', '.old', '.disabled']
 		__s.exclude.folder.prefix = ['.', '_']
-		__s.include.file.suffix = ['.conf', '.config', '.init', '.ini', '.cfg', '.toml', '.profile']
-		__s.parser = {'delimiters': (':', '='), 'allow_no_value': True, 'strict': False}
-
+		__s.include.file.suffix = ['.conf', '.config', '.init', '.ini', '.cfg', '.toml', '.profile','service','unit','']
+		__s.parser.delimiters=(':', '=')
+		__s.parser.allow_no_value=True
+		__s.parser.strict=False
+		__s.parser.opts = {'delimiters': (':', '='), 'allow_no_value': True, 'strict': False}
+		__s.flags=OptFlag(15)
 
 
 	# path:Path=field(default=None)
