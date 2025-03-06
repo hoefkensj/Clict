@@ -9,42 +9,42 @@ if not os.name=='nt':
 from pathlib import Path
 from configparser import ConfigParser,ExtendedInterpolation,BasicInterpolation,RawConfigParser
 from Clict.Clict import Clict
+from Clict.base.Clict import Clict as clictbase
 from contextlib import suppress
-from Clict.types.self import ConfSelf,ConfOpts
-from Clict.clictConfig.types import Stat,OptFlag
+from Clict.clictConfig.types import Stat, OptFlag, ConfSelf, ConfOpts,ValueSelf
 
 
-def check_Config(file,opts):
-	def read(i):
-		intr = [ExtendedInterpolation, BasicInterpolation, no]
-		cfg = ConfigParser(interpolation=intr[i](),**opts)
-		cfg.optionxform = lambda option: option
-		try:
-			result = Clict()
-			cfg.read(file)
-			for sec in cfg:
-				for key in cfg[sec].keys():
-					result[sec][key]=cfg[sec][key]
-		except Exception as E:
-			return False
-		return intr[i]
-		
-	no=lambda :None
-	cfg=False
-	i=0
-	r=read(i)
-	while cfg == False:
-		if i < 2:
-			i+=1
-			interpol = read(i)
-		else:
-				a=RawConfigParser(**opts)
-				a.optionxform = lambda option: option
-				a.read(file)
-				cfg=a
-				break
-
-	return cfg
+# def check_Config(file,opts):
+# 	def read(i):
+# 		intr = [ExtendedInterpolation, BasicInterpolation, no]
+# 		cfg = ConfigParser(interpolation=intr[i](),**opts)
+# 		cfg.optionxform = lambda option: option
+# 		try:
+# 			result = Clict()
+# 			cfg.read(file)
+# 			for sec in cfg:
+# 				for key in cfg[sec].keys():
+# 					result[sec][key]=cfg[sec][key]
+# 		except Exception as E:
+# 			return False
+# 		return intr[i]
+#
+# 	no=lambda :None
+# 	cfg=False
+# 	i=0
+# 	r=read(i)
+# 	while cfg == False:
+# 		if i < 2:
+# 			i+=1
+# 			interpol = read(i)
+# 		else:
+# 				a=RawConfigParser(**opts)
+# 				a.optionxform = lambda option: option
+# 				a.read(file)
+# 				cfg=a
+# 				break
+#
+# 	return cfg
 def testConfig(path):
 	def Parser():
 		parser = RawConfigParser(**{
@@ -66,8 +66,8 @@ def testConfig(path):
 		return valid
 
 	return test(path)
-
-
+#
+#
 
 # def readConfig(file):
 # 	def testconfig(c):
@@ -106,42 +106,50 @@ class Config(Clict):
 	__module__ = Clict
 	__qualname__ = "ClictConfig"
 	__version__ ='0.2.01'
+
 	def __init__(__s,*a,**k):
 		__s._self=None
-		__s.__self__(**k.pop('self',{}))
 		__s.__args__(*a)
 		__s.__kwargs__(**k)
 		
 		__s.__load__()
 		
-	def __self__(__s,**self):
-		name=self.get('name')
-		parent=self.get('parent')
-		path=Path(self.get('path'))
-		stat=Stat(path)
-		type='Config'
-		opts=self.get('opts',ConfOpts())
-		__s._self=ConfSelf(name=name,parent=parent,path=path,stat=stat,type=type,opts=opts)
+	def __self__(__s,**s):
+		self= s.get('self')
+		path= s.get('path')
+		if isinstance(self,ConfSelf):
+			__s._self=self
+		else:
+			s['path']=path
+			__s._self=ConfSelf(**s)
 
+	def __kwargs__(__s,**k):
+			__s.__self__(self=k.pop('self',{}),path=k.pop('path',Path()))
+			super().__kwargs__(**k)
 
 	def __load__(__s):
 		if __s._self.stat.folder:
 			__s.__isfolder__()
 		if __s._self.stat.file:
 			__s.__isfile__()
-		if __s._self.type == 'section':
+		if __s._self.stat.section:
 			__s.__issection__()
-		# elif __s._self.stat.file:
+		if __s._self.stat.key:
+			__s.__iskey__()
+		if __s._self.stat.value:
+			__s.__isvalue__()
+
 	def __isconfig__(s, path=None):
-		if path is None:
-			path=s._self.path
-		if path.suffix not in s._self.opts.exclude.file.suffix and not any([path.name.startswith(prefix) for prefix in s._self.opts.exclude.file.prefix]):
-			result=testConfig(path)
-		else:
-			result=False
+		def excluded(path):
+			byprefix=any([path.name.startswith(prefix) for prefix in s._self.opts.exclude.file.prefix])
+			bysuffix=path.suffix not in s._self.opts.exclude.file.suffix
+			return bysuffix or byprefix
+
+		result=False
+		if path is None:path=s._self.path
+		result=testConfig(path)*excluded(path)
 		return result
 
-	# 	__s.__isfile__()
 	def __isfolder__(__s):
 		def hasconfig(folder):
 			result=False
@@ -166,7 +174,7 @@ class Config(Clict):
 		for file in files:
 			if __s.__isconfig__(file):
 				cfgs+=[file]
-				self=ConfSelf(path=file.resolve(),type='config',stat=Stat(file),parent=__s)
+				self=ConfSelf(path=file.resolve(),type='config',types=['file'],stat=Stat(file),parent=__s)
 				__s[self.name]=Config(self=self)
 
 			# eval("S['" + "']['".join(partlist) + "']")
@@ -177,38 +185,54 @@ class Config(Clict):
 					self=ConfSelf(parent=__s,path=folder,stat=Stat(folder),type='config')
 					__s[self.name]=Config(self=self)
 
+	def __isfile__(__s):
+		opts = __s._self.opts
+		file=__s._self.path
+		parsers=['ext','bas','non','raw']
+		success=False
+		i=0
+		while True:
+			parser=__s.__getparser__(parsers[i])
+			try:
+				parser.read(file)
+				for section in parser:
+					for key in parser[section]:
+						str(parser[section][key])
+				success=True
+			except Exception:
+				success=False
 
-			# 	partlist+=[{part:Config(self={'name':part,'path':Path(part)})}]
-			# for part in partlist:
-			# 	s[[*part.keys()][0]]=[*part.values()][0]
-			# 	s=s[[*part.keys()][0]]
-			# 	print(s)
-			#
-			#
+			if success is False and i < 3:
+				i+=1
+				continue
+			else:
+				break
+		if success is True:
+			for section in parser:
+				if not  section=='DEFAULT':
+					path=Path(f'{__s._self.path}##{section}')
+					cfgself=ConfSelf(name=section,path=path,parser=parser)
+					__s[cfgself.name]=Config(self=cfgself)
 
+	def __issection__(__s):
+		parser=__s._self.parser
+		section=parser[__s._self.name]
+		for key in section:
+			path = Path(f'{__s._self.path}$${key}')
+			value = section[key]
+			path = Path(f'{__s._self.path}::{type(value)}')
+			valself = ValueSelf(name='value', value=value, path=path, parser=parser, section=section, key=key)
 
+			__s[key]=value.replace('{','[CLICT_REPL_U007B]').replace('}','[CLICT_REPL_U007D]')
 
-
-
-
-			#
-			# 		cfg=Config(self=self)
-			# 		__s[cfg.self().name]=cfg
-			# elif item.is_file() and __s.__isconfig__(item):
-			# 	# best=GetBestParser(item)
-			# 	# self.parse=best
-			# 	# opts = {'delimiters': (':', '='), 'allow_no_value': True, 'strict': False}
-			# 	# parse = ConfigParser(interpolation=best(), **opts)
-			# 	# parse.optionxorm = lambda option: option
-			# 	cntent={}
-			# 	def parse(path):
-			# 		with open(path,'r') as f:
-			# 			cntent= {i:line for i,line in enumerate(f)}
-			# 	# cl=Clict(parse.read(item))
-			# 	cl=Clict(**cntent)
-			# 	cfg=Config(cl,self=self)
-			# 	__s[cfg.self().name] = cfg
-
+	def __iskey__(__s):
+		parser=__s._self.parser
+		section=__s._self.section
+		key=__s._self.name
+		value=parser[section][key]
+		path = Path(f'{__s._self.path}::{type(value)}')
+		valself=ValueSelf(name='value',value=value,path=path,parser=parser,section=section,key=key)
+		__s.value=str(value).replace('{','{CLICT_REPL_U007B}').replace('}','{CLICT_REPL_U007D}')
 
 	def __getparser__(s,parser):
 		opts = s._self.opts.parser.opts
@@ -224,113 +248,4 @@ class Config(Clict):
 		return parsers[parser]
 
 
-	def __isfile__(__s):
-		opts = __s._self.opts
-		file=__s._self.path
-		parsers=['ext','bas','non','raw']
-		success=False
-		i=0
-		while True:
-			parser=__s.__getparser__(parsers[i])
-			try:
-				parser.read(file)
-				success=True
-				break
-			except Exception:
-				if i<4:
-					i+=1
-					continue
-				else:
-					success=False
-					break
-		if success:
-			for section in parser:
-				if section=='DEFAULT':
-					continue
-				else:
-					path=Path(__s._self.path,'#',section)
-					dct={}
-					for key in parser[section]:
-						dct[key]=parser[section][key]
-						__s[section]=Config(self=ConfSelf(name=f'{__s.path.name}#{key}',path=path,stat=Stat(path),type='section',types='section'),**dct)
 
-	def __issection__(__s):
-		print('works')
-
-def GetBestInterpolation(path):
-	def rawParser():
-		parser = RawConfigParser(**{
-			'delimiters': (':', '='),
-			'allow_no_value': True,
-			'strict': False
-		})
-		parser.optionxform = lambda option: option
-		return parser
-	def testreadconfig(opts={	'delimiters': (':', '='),'allow_no_value': True,'strict': False}):
-
-		def Parser(i):
-			interpol=[ExtendedInterpolation, BasicInterpolation, no:=lambda :None]
-			parser = ConfigParser(interpolation=interpol[i](), **opts)
-			parser.optionxform = lambda option: option
-			return parser
-		parsers=[]
-		for i in range(2):
-			parser=Parser(i)
-			try:
-				parser.read(path)
-				for section in parser:
-					if section=='DEFAULT':
-						continue
-					else:
-						for key in parser[section]:
-							parser[section][key]
-
-				parsers+=[[ExtendedInterpolation, BasicInterpolation, no:=lambda :None][i]]
-			except Exception:
-				pass
-
-
-		return parsers
-	bestparser=rawParser()
-	parsers=testreadconfig()
-	if len(parsers)>0:
-		bestparser=parsers[0]
-	return bestparser
-
-
-class ConfigSection(Clict):
-	__module__ = Clict
-	__qualname__ = "ClictConfigSection"
-	__version__ = '0.2.01'
-
-	def __init__(__s, path=None, *a, **k):
-		__s._self = None
-		__s.__self__(**k.pop('self', {}))
-		__s.__args__(*a)
-		__s.__kwargs__(**k)
-
-	# 	if len(c[section])==0:
-					# 		c[section]=str(None)
-					# if len(c)==0:
-					# 	c=None
-					# else:
-					# 	for section in c:
-					# 		for key in c[section]:
-					# 			=c[section][key]
- 		# #
-		# else:
-		# 	__s.error=f'{__s._self.get("path")} : exists = {__s._self.type.exists}'
-		# 	# print(, 'is not a config',__s.error)
-		#
-
-
-
-	# def __folder__(__s):
-	# 	itemlist = [*__s._self.path.glob('*')]
-	# 	for item in [*__s._self.path.glob('*')]:
-	# 		self=Self(item)
-	# 		if (self.stat.folder)*(not self.stat.symlink) :
-	# 			s=Self(item)
-	# 			__s[item.name]= Config(item, self=s)
-a=Config(self={'path':'/etc/systemd'})
-print(repr(a))

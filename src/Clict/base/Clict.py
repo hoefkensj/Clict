@@ -75,12 +75,12 @@ class Clict(dict):
 				sdict[attr] = __s[attr]
 
 		return sdict
+
 	def __missing__(__s, k):
 		# print('missing called with:' ,f'{k=}')
 		missing = Clict()
 		__s.__setitem__(k, missing)
 		return super().__getitem__(k)
-
 
 	def __contains__(__s, item):
 
@@ -98,8 +98,6 @@ class Clict(dict):
 				nkey = str(nkey).removeprefix('_')
 				hidden[nkey] = __s.__getitem__(key)
 		return hidden
-
-
 
 	def __clean__(__s):
 		result = []

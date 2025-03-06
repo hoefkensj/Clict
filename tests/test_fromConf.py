@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import unittest
-from Clict import fromConfig,toConfig
-
+from Clict.clictConfig.config import Config
 from unittest.mock import patch, MagicMock
 from pathlib import Path
 from configparser import ConfigParser
@@ -14,7 +13,7 @@ class TestFromConfig(unittest.TestCase):
 
 	def test_folder(self):
 		# Test handling of a file with a valid config extension
-		config = fromConfig(Path('to_config'))
+		config = Config(path=Path('to_config'))
 		print(config._self)
 		self.assertTrue(config._self.stat.folder)
 		self.assertEqual("to_config",config._self.name)
@@ -29,7 +28,7 @@ class TestFromConfig(unittest.TestCase):
 
 	def test_sysdfolder(self):
 		# Test handling of a file with a valid config extension
-		config = fromConfig(Path('/etc/systemd'))
+		config = Config(path=Path('/etc/systemd'))
 		self.assertTrue(config._self.stat.folder)
 		# self.assertEqual(config._self.name, "config")
 		print(repr(config))
@@ -38,7 +37,8 @@ class TestFromConfig(unittest.TestCase):
 			print(repr(config[item]))
 		print('------------')
 		print('\n\n\n\n\n\n')
-
+		config._self.opts.repr.color=False
+		print(repr(config))
 
 
 	# def test_ignore_dotfiles(self):
