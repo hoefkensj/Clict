@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a7424be4-b9c0-43f1-aa37-dde1f249660b" name="Changes" comment="does /etc/systemd correct now">
+    <list default="true" id="a7424be4-b9c0-43f1-aa37-dde1f249660b" name="Changes" comment="fixes the {} issues partly, tests validate so">
       <change afterPath="$PROJECT_DIR$/src/Clict/base/__init__.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/Clict/base/self.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/Clict/types/datatypes.py" afterDir="false" />
@@ -333,7 +333,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740343885246</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="fixes the {} issues partly, tests validate so">
+      <option name="closed" value="true" />
+      <created>1741300177800</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1741300177800</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -352,6 +360,7 @@
     <MESSAGE value="noidea" />
     <MESSAGE value="faster and works" />
     <MESSAGE value="does /etc/systemd correct now" />
-    <option name="LAST_COMMIT_MESSAGE" value="does /etc/systemd correct now" />
+    <MESSAGE value="fixes the {} issues partly, tests validate so" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixes the {} issues partly, tests validate so" />
   </component>
 </project>

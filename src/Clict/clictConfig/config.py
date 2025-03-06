@@ -223,7 +223,7 @@ class Config(Clict):
 			path = Path(f'{__s._self.path}::{type(value)}')
 			valself = ValueSelf(name='value', value=value, path=path, parser=parser, section=section, key=key)
 
-			__s[key]=value.replace('{','[CLICT_REPL_U007B]').replace('}','[CLICT_REPL_U007D]')
+			__s[key]=value#.replace('{','[CLICT_REPL_U007B]').replace('}','[CLICT_REPL_U007D]')
 
 	def __iskey__(__s):
 		parser=__s._self.parser
