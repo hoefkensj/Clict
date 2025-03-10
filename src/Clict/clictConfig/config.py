@@ -9,42 +9,10 @@ if not os.name=='nt':
 from pathlib import Path
 from configparser import ConfigParser,ExtendedInterpolation,BasicInterpolation,RawConfigParser
 from Clict.Clict import Clict
-from Clict.base.Clict import Clict as clictbase
+from Clict.base.clict import Clict as clictbase
 from contextlib import suppress
-from Clict.clictConfig.types import Stat, OptFlag, ConfSelf, ConfOpts,ValueSelf
+from Clict.clictConfig.types import Stat, OptFlag, ConfSelf, ConfOpts
 
-
-# def check_Config(file,opts):
-# 	def read(i):
-# 		intr = [ExtendedInterpolation, BasicInterpolation, no]
-# 		cfg = ConfigParser(interpolation=intr[i](),**opts)
-# 		cfg.optionxform = lambda option: option
-# 		try:
-# 			result = Clict()
-# 			cfg.read(file)
-# 			for sec in cfg:
-# 				for key in cfg[sec].keys():
-# 					result[sec][key]=cfg[sec][key]
-# 		except Exception as E:
-# 			return False
-# 		return intr[i]
-#
-# 	no=lambda :None
-# 	cfg=False
-# 	i=0
-# 	r=read(i)
-# 	while cfg == False:
-# 		if i < 2:
-# 			i+=1
-# 			interpol = read(i)
-# 		else:
-# 				a=RawConfigParser(**opts)
-# 				a.optionxform = lambda option: option
-# 				a.read(file)
-# 				cfg=a
-# 				break
-#
-# 	return cfg
 def testConfig(path):
 	def Parser():
 		parser = RawConfigParser(**{
@@ -66,41 +34,6 @@ def testConfig(path):
 		return valid
 
 	return test(path)
-#
-#
-
-# def readConfig(file):
-# 	def testconfig(c):
-# 		result=False
-# 		with suppress(Exception):
-# 			for section in c:
-# 				for key in c[section]:
-# 						test=c[section][key]
-# 				return True
-# 		return result
-#
-# 	opts={'delimiters':(':', '='), 'allow_no_value':True}
-# 	CEI = lambda : ConfigParser(interpolation=ExtendedInterpolation(),**opts,strict=False)
-# 	CBI = lambda : ConfigParser(interpolation=BasicInterpolation(),**opts)
-# 	CNI = lambda : ConfigParser(interpolation=None,**opts)
-# 	CRP = lambda : RawConfigParser(**opts,strict=False)
-#
-# 	cfg=None
-# 	i=0
-# 	while i<4:
-# 		cfg = [CEI,CBI,CNI,CRP][i]()
-# 		parser=['extended','basic','none','raw'][i]
-# 		cfg.optionxform = lambda option: option
-# 		cfg.read(file)
-# 		if testconfig(cfg):
-# 			result=[CEI,CBI,CNI,CRP][i]()
-# 			result.optionxform = lambda option: option
-# 			result.read(file)inc
-# 			break
-# 		else:
-# 			i+=1
-#
-# 	return cfg
 
 class Config(Clict):
 	__module__ = Clict
@@ -136,8 +69,8 @@ class Config(Clict):
 			__s.__issection__()
 		if __s._self.stat.key:
 			__s.__iskey__()
-		if __s._self.stat.value:
-			__s.__isvalue__()
+		# if __s._self.stat.value:
+		# 	__s.__isvalue__()
 
 	def __isconfig__(s, path=None):
 		def excluded(path):
@@ -210,29 +143,29 @@ class Config(Clict):
 		if success is True:
 			for section in parser:
 				if not  section=='DEFAULT':
-					path=Path(f'{__s._self.path}##{section}')
-					cfgself=ConfSelf(name=section,path=path,parser=parser)
+					cfgself = ConfSelf(name=section, path=(Path(f'{__s._self.path}##{section}')), parser=parser)
 					__s[cfgself.name]=Config(self=cfgself)
 
 	def __issection__(__s):
 		parser=__s._self.parser
 		section=parser[__s._self.name]
 		for key in section:
-			path = Path(f'{__s._self.path}$${key}')
+			value=section[key]
+			keypath = Path(f'{__s._self.path}$${key}')
+			valpath = Path(f'{__s._self.path}::{value}')
+			valself = ConfSelf(name='value', value=value, path=valpath, parser=parser, section=section, key=key)
 			value = section[key]
-			path = Path(f'{__s._self.path}::{type(value)}')
-			valself = ValueSelf(name='value', value=value, path=path, parser=parser, section=section, key=key)
 
 			__s[key]=value#.replace('{','[CLICT_REPL_U007B]').replace('}','[CLICT_REPL_U007D]')
 
-	def __iskey__(__s):
-		parser=__s._self.parser
-		section=__s._self.section
-		key=__s._self.name
-		value=parser[section][key]
-		path = Path(f'{__s._self.path}::{type(value)}')
-		valself=ValueSelf(name='value',value=value,path=path,parser=parser,section=section,key=key)
-		__s.value=str(value).replace('{','{CLICT_REPL_U007B}').replace('}','{CLICT_REPL_U007D}')
+	# def __iskey__(__s):
+	# 	parser=__s._self.parser
+	# 	section=__s._self.section
+	# 	key=__s._self.name
+	# 	value=parser[section][key]
+	# 	path = Path(f'{__s._self.path}::{type(value)}')
+	# 	valself=ValueSelf(name='value',value=value,path=path,parser=parser,section=section,key=key)
+	# 	__s.value=str(value)#.replace('{','{CLICT_REPL_U007B}').replace('}','{CLICT_REPL_U007D}')
 
 	def __getparser__(s,parser):
 		opts = s._self.opts.parser.opts
@@ -247,5 +180,32 @@ class Config(Clict):
 		parsers={'ext':extparser,'bas':basparser,'non':nonparser,'raw':rawparser}
 		return parsers[parser]
 
+
+
+class ConfigKey(Config):
+	pass
+
+class ConfigVal(str):
+	__module__ = Clict
+	__qualname__ = "ClictValue"
+	__version__ = '0.0.01'
+
+	def __init__(__s, *a, **k):
+		__s._self = None
+		if a:
+			__s._value=''.join(a)
+		__s.__self__(**k,)
+		super().__init__()
+	def __self__(__s, **s):
+		self = s.get('self')
+		if isinstance(self, ConfSelf):
+			__s._self = self
+		else:
+			s['path'] = s.get('path',)
+			s['value']= __s._value
+			s['parser'] = s.get('parser')
+			s['section'] =  s.get('section')
+			s['key'] = s.get('key')
+			__s._self = ConfSelf(name='value', **s)
 
 

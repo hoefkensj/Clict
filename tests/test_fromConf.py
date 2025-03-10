@@ -29,6 +29,7 @@ class TestFromConfig(unittest.TestCase):
 	def test_sysdfolder(self):
 		# Test handling of a file with a valid config extension
 		config = Config(path=Path('/etc/systemd'))
+		print('/etc/systemd ingested')
 		self.assertTrue(config._self.stat.folder)
 		# self.assertEqual(config._self.name, "config")
 		print(repr(config))
@@ -40,6 +41,21 @@ class TestFromConfig(unittest.TestCase):
 		config._self.opts.repr.color=False
 		print(repr(config))
 
+	# def test_dotconfigfolder(self):
+	# 	# Test handling of a file with a valid config extension
+	# 	config = Config(path=Path('/home/jeroen/.config'))
+	# 	print('~/.config ingested')
+	#
+	# 	self.assertTrue(config._self.stat.folder)
+	# 	# self.assertEqual(config._self.name, "config")
+	# 	print(repr(config))
+	# 	print('------------')
+	# 	for item in config:
+	# 		print(repr(config[item]))
+	# 	print('------------')
+	# 	print('\n\n\n\n\n\n')
+	# 	config._self.opts.repr.color=False
+	# 	print(repr(config))
 
 	# def test_ignore_dotfiles(self):
 	# 	# Test that dotfiles are ignored when ignore_dotfiles is set to True

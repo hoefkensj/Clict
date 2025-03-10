@@ -3,8 +3,8 @@ from pathlib import Path
 from subprocess import getoutput
 from enum import IntFlag
 
-from Clict.base.Clict import Clict as clictbase
-from Clict.base.self import Opts
+from Clict.base.clict import Clict as clictbase
+from Clict.base.support import Opts
 
 
 class Stat:
@@ -64,11 +64,14 @@ class ConfSelf(clictbase):
 		__s.file=k.get('file')
 		__s.section=k.get('section')
 		__s.key=k.get('key')
+		__s.value=k.get('value')
+		__s.strvalue=str(repr(__s.value))
 		__s.stat=Stat(path=__s.path)
 		__s.types=None
 		__s.type=None
 		__s.parser=k.get('parser')
 		__s.interpolation=None
+
 
 		if __s.name is None:
 			if __s.opts.flags.strip_file_Suffix:
@@ -82,16 +85,7 @@ class ConfSelf(clictbase):
 		t+= ['section' ]*__s.stat.section
 		t+= ['key' ]*__s.stat.key
 
-class ValueSelf(clictbase):
-	def __init__(__s,*a,**k):
-		__s.name= k.get('name')
-		__s.parent=k.get('parent')
-		__s.path=Path(k.get('path'))
-		__s.file=k.get('file')
-		__s.section=k.get('section')
-		__s.key=k.get('key')
-		__s.originalvalue=k.get('value')
-		__s.strvalue=str(k.get('value'))
+
 
 
 class ConfOpts(Opts):
@@ -100,7 +94,7 @@ class ConfOpts(Opts):
 		__s.exclude.file.prefix = ['.', '_']
 		__s.exclude.file.suffix = ['.bak', '.old', '.disabled']
 		__s.exclude.folder.prefix = ['.', '_']
-		__s.include.file.suffix = ['.conf', '.config', '.init', '.ini', '.cfg', '.toml', '.profile','service','unit','']
+		__s.include.file.suffix = ['.conf', '.config', '.init', '.ini', '.cfg', '.toml', '.profile','.service','.unit','.desktop','']
 		__s.parser.delimiters=(':', '=')
 		__s.parser.allow_no_value=True
 		__s.parser.strict=False
