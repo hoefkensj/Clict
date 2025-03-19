@@ -1,12 +1,3 @@
-from dataclasses import field
-from pathlib import Path
-from subprocess import getoutput
-from enum import IntFlag
-
-from Clict.ClictBase.base import Clict as clictbase
-from Clict.lib.support import Opts
-
-
 class Stat:
 	def __init__(__s,path):
 		__s.path=path
@@ -52,8 +43,6 @@ class OptFlag(IntFlag):
 		split_on_Underscore = 16
 		split_on_dot        = 32
 		split_on_dash       = 64
-
-
 
 
 

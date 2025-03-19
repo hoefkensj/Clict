@@ -1,7 +1,8 @@
 class Clict(dict):
 	__module__ = None
 	__qualname__ = "Clict"
-	__version__ = '0.6.1'
+	__version__ = '0.8.1'
+	__clict__='ClictBase.base.Clict'
 
 	def __new__(__c, *a, **k):
 		# print('__new__ called with:' ,f'{k=}{v=}')
@@ -12,32 +13,33 @@ class Clict(dict):
 		if a:    __s.__args__(*a)
 		if k:    __s.__kwargs__(**k)
 
-	def __args__(__s, *a):
-		for i, arg in enumerate(a):
-			if isinstance(arg, dict):
-				from Clict.from_other.types import fromDict
-				dct = fromDict(arg)
-				for key in dct:
-					__s[key] = dct[key]
-			elif isinstance(arg, list):
-				from Clict.from_other.types import fromList
 
-				dct = fromList(arg)
-				for key in dct:
-					__s[i][key] = dct[key]
-			else:
-				__s[i] = arg
+	# def __args__(__s, *a):
+	# 	for i, arg in enumerate(a):
+	# 		if isinstance(arg, dict):
+	# 			from Clict.from_other.types import fromDict
+	# 			dct = fromDict(arg)
+	# 			for key in dct:
+	# 				__s[key] = dct[key]
+	# 		elif isinstance(arg, list):
+	# 			from Clict.from_other.types import fromList
+	#
+	# 			dct = fromList(arg)
+	# 			for key in dct:
+	# 				__s[i][key] = dct[key]
+	# 		else:
+	# 			__s[i] = arg
 
-	def __kwargs__(__s, **k):
-		for key in k:
-			if isinstance(k[key], dict):
-				from Clict.from_other.types import fromDict
-				__s[key] = fromDict(k[key])
-			elif isinstance(k[key], list):
-				from Clict.from_other.types import fromList
-				__s[key] = fromList(k[key])
-			else:
-				__s[key] = k[key]
+	# def __kwargs__(__s, **k):
+	# 	for key in k:
+	# 		if isinstance(k[key], dict):
+	# 			from Clict.from_other.types import fromDict
+	# 			__s[key] = fromDict(k[key])
+	# 		elif isinstance(k[key], list):
+	# 			from Clict.from_other.types import fromList
+	# 			__s[key] = fromList(k[key])
+	# 		else:
+	# 			__s[key] = k[key]
 
 	def __setattr__(__s, k, v):
 		# print('setattr_called with:' ,f'{k=}{v=}')
@@ -79,7 +81,7 @@ class Clict(dict):
 	def __missing__(__s, k):
 		# print('missing called with:' ,f'{k=}')
 		missing = Clict()
-		__s.__setitem__(k, missing)
+		__s.__setitem__(k, None)
 		return super().__getitem__(k)
 
 	def __contains__(__s, item):
@@ -88,7 +90,28 @@ class Clict(dict):
 
 	def __iter__(__s):
 		return (i for i in __s.__clean__())
-
+	def __args__(__s,*a):
+		__s.__fromList__([*a])
+	def __kwargs__(__s,**k):
+		__s.__fromDict__({**k})
+	def __fromList__(__s,lst):
+		for i, arg in enumerate(lst):
+			# self=Self(parent=__s,name=i)
+			item=arg
+			if isinstance(arg, list):
+				item=Clict(*arg)
+			elif isinstance(arg, dict):
+				item = Clict(**arg)
+			__s[__s.__expandkey__(i)]=item
+	def __fromDict__(__s,dct):
+		for kwarg in dct :
+			item=dct[kwarg]
+			# self=Self(parent=__s,name=kwarg)
+			if isinstance(dct[kwarg], list):
+				item=Clict(*dct[kwarg])
+			elif isinstance(dct[kwarg], dict):
+				item = Clict(**dct[kwarg])
+			__s[__s.__expandkey__(kwarg)]=item
 	def __hidden__(__s):
 		hidden = Clict()
 		pfx = __s.__pfx__()

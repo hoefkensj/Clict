@@ -1,17 +1,14 @@
 
 #!/usr/bin/env python
 import os
-import sys
-from logging import exception
-from re import escape,findall
+
 if not os.name=='nt':
-	import termios
+	pass
 from pathlib import Path
 from configparser import ConfigParser,ExtendedInterpolation,BasicInterpolation,RawConfigParser
 from Clict.Clict import Clict
-from Clict.base.clict import Clict as clictbase
-from contextlib import suppress
-from Clict.clictConfig.types import Stat, OptFlag, ConfSelf, ConfOpts
+from Clict.clictConfig.types import Stat, ConfSelf
+
 
 def testConfig(path):
 	def Parser():

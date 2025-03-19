@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 import unittest
-from Clict.clictConfig.config import Config
-from unittest.mock import patch, MagicMock
+from Clict.ClictConfig.base import Config
 from pathlib import Path
-from configparser import ConfigParser
-import os
+
 
 # Importing the classes and functions from the given code
 
