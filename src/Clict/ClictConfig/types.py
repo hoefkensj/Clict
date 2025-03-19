@@ -3,44 +3,18 @@ from pathlib import Path
 from subprocess import getoutput
 from enum import IntFlag
 
-from Clict.base.clict import Clict as clictbase
-from Clict.base.support import Opts
 
+from enum import Enum,IntFlag
 
-class Stat:
-	def __init__(__s,path):
-		__s.path=path
-		real=None
-		virt=None
-		real=Path(path).expanduser().resolve()
-		if '##' in str(real):
-			real,virt=str(path.absolute()).split('##')
-			real=Path(real)
-			virt=Path(virt)
-		__s.exists  = real.exists()
-		__s.file    = real.is_file()
-		__s.folder  = real.is_dir()
-		__s.symlink = real.is_symlink()
-		__s.ftype   = getoutput(f'file {real}').split(':')[-1].split()
-		__s.virtual = False
-		__s.section = False
-		__s.key     = False
-		__s.value   = False
-		__s.object  = False
-		if virt is not None:
-			__s.virtual=True
-			__s.section=True
-			__s.key=False
-			section=virt
-			if '::' in str(virt):
-				__s.section = False
-				__s.value = True
-			elif '$$' in str(virt):
-				section,key=str(virt).split('$$')
-				__s.section=False
-				__s.key=True
-
-
+class CfgType(IntFlag):
+	none	 = 0
+	config   = 2**1
+	root     = 2**2
+	folder   = 2**3
+	file     = 2**4
+	section  = 2**5
+	key      = 2**6
+	val      = 2**7
 
 
 
@@ -56,36 +30,34 @@ class OptFlag(IntFlag):
 
 class ConfSelf(clictbase):
 	def __init__(__s,*a,**k):
-		from pathlib import Path
+		__s._self=k.get('node')
+		__s.root=k.get('root')
 		__s.name= k.get('name')
 		__s.opts=k.get('opts',ConfOpts())
 		__s.parent=k.get('parent')
-		__s.path=Path(k.get('path'))
+		__s.path=Path(k.pop('path',''))
 		__s.file=k.get('file')
 		__s.section=k.get('section')
 		__s.key=k.get('key')
 		__s.value=k.get('value')
 		__s.strvalue=str(repr(__s.value))
-		__s.stat=Stat(path=__s.path)
-		__s.types=None
-		__s.type=None
+		__s.stat=Stat(path=__s.path,**k)
+		__s.types=CfgType(0)
+		__s.type=CfgType(0)
 		__s.parser=k.get('parser')
 		__s.interpolation=None
-
-
+		__s.__types__()
 		if __s.name is None:
 			if __s.opts.flags.strip_file_Suffix:
 				for suffix in __s.opts.include.file.suffix:
 					__s.name =__s.path.name.removesuffix(suffix)
-		__s.__types__()
+
 	def __types__(__s):
-		t=[]
-		t+= ['folder' ]*__s.stat.folder
-		t+= ['file' ]*__s.stat.file
-		t+= ['section' ]*__s.stat.section
-		t+= ['key' ]*__s.stat.key
-
-
+		T=CfgType
+		S=__s.stat
+		__s.types=(T.folder*S.folder)+(T.file*S.file)+(T.section*S.section)+(T.key*S.key)+(T.val*S.value)
+	def self(__s):
+		return __s._self
 
 
 class ConfOpts(Opts):
@@ -99,7 +71,7 @@ class ConfOpts(Opts):
 		__s.parser.allow_no_value=True
 		__s.parser.strict=False
 		__s.parser.opts = {'delimiters': (':', '='), 'allow_no_value': True, 'strict': False}
-		__s.flags=OptFlag(15)
+		__s.flags=OptFlag(0)
 
 
 	# path:Path=field(default=None)

@@ -12,12 +12,13 @@ GREEN='38;2;0;255;0'
 #function ptab(){
 #	printf '\x1b[%sG %s' $2 $1
 #}
+
 #VERSION=$(cat pyproject.toml|rg -i version|tr -d 'version = ')
 #PROJ=$(basename $PWD)
 #L1="$(printf '%s' "$(ptab "$(pcol '| Project:'     '"$WHITE"' )" '"$A1"' ) $(ptab $(pcol '"| Version:"' '"$WHITE"') '"$B1"')) "
 #L2="$(printf '%s' "$(ptab "$(pcol '| Upgrading:'   '"$WHITE"' )" '"$A1"' ))"
 #L3="$(printf '%s' "$(ptab "$(pcol '| Tests:'       '"$WHITE"' )" '"$A1"' ) $(ptab $(pcol '"| Result:"' '"$WHITE"') '"$B1"'))"
-#L4="$(printf '%s' "$(ptab "$(pcol '| Building:'    '"$WHITE"' )" '"$A1"' ))"
+#L4="$(printf k'%s' "$(ptab "$(pcol '| Building:'    '"$WHITE"' )" '"$A1"' ))"
 #L5="$(printf '%s' "$(ptab "$(pcol '| GIT:'         '"$WHITE"' )" '"$A1"' ))"
 #L6="$(printf '%s' "$(ptab "$(pcol '| Stage:'       '"$WHITE"' )" '"$B1"' ))"
 #L7="$(printf '%s' "$(ptab "$(pcol '| Commit:'      '"$WHITE"' )" '"$B1"' ))"

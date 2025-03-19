@@ -12,7 +12,7 @@ from Clict.Clict import Clict
 from Clict.base.clict import Clict as clictbase
 from contextlib import suppress
 from Clict.clictConfig.types import Stat, OptFlag, ConfSelf, ConfOpts
-
+import inspect
 def testConfig(path):
 	def Parser():
 		parser = RawConfigParser(**{
@@ -39,25 +39,37 @@ class Config(Clict):
 	__module__ = Clict
 	__qualname__ = "ClictConfig"
 	__version__ ='0.2.01'
+	_self:ConfSelf
 
 	def __init__(__s,*a,**k):
-		__s._self=None
+		path=k.get('path')
+		if not k.pop('ischild',False):
+			k['isroot']=True
+			if (len(a)==1) * (not k.get('path',False)):
+				if (isinstance(a[0],str)+(isinstance(a[0],Path))) :
+					path=a[0]
+			k['path']=path
+
 		__s.__args__(*a)
 		__s.__kwargs__(**k)
-		
+
 		__s.__load__()
 		
-	def __self__(__s,**s):
-		self= s.get('self')
+	def __self__(__s,*a,**s):
+		self= s.pop('self',None)
 		path= s.get('path')
+		isroot= s.get('isroot')
 		if isinstance(self,ConfSelf):
 			__s._self=self
 		else:
 			s['path']=path
+			if isroot:
+				s['root']=path
 			__s._self=ConfSelf(**s)
 
 	def __kwargs__(__s,**k):
-			__s.__self__(self=k.pop('self',{}),path=k.pop('path',Path()))
+
+			__s.__self__(self=k.pop('self',{}),path=k.pop('path',Path()),isroot=k.pop('isroot',False))
 			super().__kwargs__(**k)
 
 	def __load__(__s):
@@ -80,13 +92,15 @@ class Config(Clict):
 
 		result=False
 		if path is None:path=s._self.path
-		result=testConfig(path)*excluded(path)
+		if not excluded(path):
+			result=testConfig(path)
 		return result
 
 	def __isfolder__(__s):
 		def hasconfig(folder):
 			result=False
-			if not __s._self.type=='config':
+
+			if not  __s._self.types:
 				files=folder.rglob('*')
 				for f in files:
 					if f.suffix in __s._self.opts.include.file.suffix:
@@ -98,25 +112,25 @@ class Config(Clict):
 
 		def excluded(folder):
 			result= folder.suffix  in __s._self.opts.exclude.file.suffix or any(
-				[folder.name.startswith(prefix) for prefix in __s._self.opts.exclude.file.prefix])
+				[folder.name.startswith(prefix) for prefix in __s._self.opts.exclude.folder.prefix])
 			return result
 
-		files=[Path(it) for it in __s.self().path.glob('*') if it.is_file()]
-		opts = {'delimiters': (':', '='), 'allow_no_value': True, 'strict': False}
+		files=[Path(it) for it in __s.getself().path.glob('*') if it.is_file()]
+		opts = __s.getself().opts.parser.opts
 		cfgs=[]
 		for file in files:
 			if __s.__isconfig__(file):
 				cfgs+=[file]
 				self=ConfSelf(path=file.resolve(),type='config',types=['file'],stat=Stat(file),parent=__s)
-				__s[self.name]=Config(self=self)
+				__s[self.name]=Config(self=self,ischild=True)
 
 			# eval("S['" + "']['".join(partlist) + "']")
-		folders=[Path(it) for it in __s.self().path.glob('*') if it.is_dir()]
+		folders=[Path(it) for it in __s.self.path.glob('*') if it.is_dir()]
 		for folder in folders:
 			if not excluded(folder):
 				if hasconfig(folder):
 					self=ConfSelf(parent=__s,path=folder,stat=Stat(folder),type='config')
-					__s[self.name]=Config(self=self)
+					__s[self.name]=Config(self=self,ischild=True)
 
 	def __isfile__(__s):
 		opts = __s._self.opts
@@ -144,7 +158,7 @@ class Config(Clict):
 			for section in parser:
 				if not  section=='DEFAULT':
 					cfgself = ConfSelf(name=section, path=(Path(f'{__s._self.path}##{section}')), parser=parser)
-					__s[cfgself.name]=Config(self=cfgself)
+					__s[cfgself.name]=Config(self=cfgself,ischild=true)
 
 	def __issection__(__s):
 		parser=__s._self.parser

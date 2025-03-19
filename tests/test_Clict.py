@@ -50,7 +50,7 @@ class TestClict(unittest.TestCase):
 		# localparent=c.d.__setparent__('iamparent')
 
 		s.assertEqual('fromhere',c.d.bsplit.child.str)
-		s.assertEqual('findme',c.d.bsplit.child.getParent().getParent().asplit.child.str)
+		s.assertEqual('findme',c.d.bsplit.child.getSelf().parent.getSelf().parent.asplit.child.str)
 
 	# def test_str(s):
 	# 	c = Clict(a=1, b=2)

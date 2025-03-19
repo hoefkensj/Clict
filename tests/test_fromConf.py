@@ -17,9 +17,9 @@ class TestFromConfig(unittest.TestCase):
 		print(config._self)
 		self.assertTrue(config._self.stat.folder)
 		self.assertEqual("to_config",config._self.name)
-		print(repr(config._self))
 		print('------------')
 		for item in config:
+			print(repr(config.self()))
 			print(repr(config[item]._self))
 		print('------------')
 
@@ -28,11 +28,11 @@ class TestFromConfig(unittest.TestCase):
 
 	def test_sysdfolder(self):
 		# Test handling of a file with a valid config extension
-		config = Config(path=Path('/etc/systemd'))
+		config = Config(Path('/etc/systemd'))
 		print('/etc/systemd ingested')
 		self.assertTrue(config._self.stat.folder)
 		# self.assertEqual(config._self.name, "config")
-		print(repr(config))
+		print(config._getself())
 		print('------------')
 		for item in config:
 			print(repr(config[item]))

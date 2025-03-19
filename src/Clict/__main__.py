@@ -37,7 +37,7 @@ def grp_from(ctx):
 @C.pass_context
 def grp_cli(ctx):
 	"""	help cli"""
-	ctx.ensure_object(Clict.Clict)
+	ctx.ensure_object(Clict.Clict.Clict)
 
 
 

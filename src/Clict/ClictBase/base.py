@@ -1,7 +1,10 @@
+
+
 class Clict(dict):
 	__module__ = None
 	__qualname__ = "Clict"
-	__version__ = '0.6.1'
+	__version__ = '0.8.1'
+	__clict__='ClictBase.base.Clict'
 
 	def __new__(__c, *a, **k):
 		# print('__new__ called with:' ,f'{k=}{v=}')
@@ -9,35 +12,6 @@ class Clict(dict):
 
 	def __init__(__s, *a, **k):
 		super().__init__()
-		if a:    __s.__args__(*a)
-		if k:    __s.__kwargs__(**k)
-
-	def __args__(__s, *a):
-		for i, arg in enumerate(a):
-			if isinstance(arg, dict):
-				from Clict.from_other.types import fromDict
-				dct = fromDict(arg)
-				for key in dct:
-					__s[key] = dct[key]
-			elif isinstance(arg, list):
-				from Clict.from_other.types import fromList
-
-				dct = fromList(arg)
-				for key in dct:
-					__s[i][key] = dct[key]
-			else:
-				__s[i] = arg
-
-	def __kwargs__(__s, **k):
-		for key in k:
-			if isinstance(k[key], dict):
-				from Clict.from_other.types import fromDict
-				__s[key] = fromDict(k[key])
-			elif isinstance(k[key], list):
-				from Clict.from_other.types import fromList
-				__s[key] = fromList(k[key])
-			else:
-				__s[key] = k[key]
 
 	def __setattr__(__s, k, v):
 		# print('setattr_called with:' ,f'{k=}{v=}')
@@ -64,6 +38,8 @@ class Clict(dict):
 	def __get__(__s, k, default=None):
 		# print('__get__ called with:' ,f'{k=}{default}')
 		k = __s.__expandkey__(k)
+
+
 		return super().__getitem__(k)
 
 	def __dict__(__s):
@@ -116,17 +92,16 @@ class Clict(dict):
 		if str(k).startswith('__'):
 			pass
 		elif str(k).startswith('_'):
-			if ''.join(set(k) - set(',j.e')).isnumeric():
+			if ''.join(set(k) - set('+,j.e')).isnumeric():
 				k = k[1:]
 			else:
 				pfx = __s.__pfx__()
 				if not str(k).startswith(pfx):
 					k = f'{pfx}{k}'
-		#
-		# if isinstance(k,(int,float,complex)):
-		# 	k=f'_{k}'
 		return k
-
+	def __numkey__(__s,key):
+		print(key)
+		return f'_{key}'
 	def _get(__s, k, default=None):
 		# print(f'get called with {k}')
 		k = __s.__expandkey__(k)
@@ -162,4 +137,30 @@ class Clict(dict):
 		return eq
 	def template(__s):
 		return Clict(__s)
+
+	@staticmethod
+	def fromDict(data):
+		__s = Clict()
+		for key in data:
+			if isinstance(data[key], Clict):
+				__s[key] = data[key]
+			if isinstance(data[key], dict):
+				__s[key] = Clict(**data[key])
+
+			elif isinstance(data[key], list):
+				__s[key] = Clict(*data[key])
+			else:
+				__s[key] = data[key]
+		return __s
+	@staticmethod
+	def fromList(data):
+		__s = Clict()
+		for i, item in enumerate(data):
+			if isinstance(item, dict):
+				__s[i] = Clict(item)
+			elif isinstance(data[i], list):
+				__s[i] = Clict.fromList(*item)
+			else:
+				__s[i] = item
+		return __s
 
