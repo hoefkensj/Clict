@@ -1,0 +1,6 @@
+qt.xkb.compose: failed to create compose table
+qt.core.qobject.connect: QObject::disconnect: Unexpected nullptr parameter
+qt.core.qobject.connect: QObject::disconnect: Unexpected nullptr parameter
+qt.core.qobject.connect: QObject::disconnect: Unexpected nullptr parameter
+qt.core.qobject.connect: QObject::disconnect: Unexpected nullptr parameter
+QThreadStorage: Thread 0x555d70f58b50 exited after QThreadStorage 9 destroyed
